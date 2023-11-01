@@ -47,6 +47,7 @@ dependencies {
     implementation 'com.neovisionaries:nv-bluetooth:1.8'
     implementation 'com.polidea.rxandroidble:rxandroidble:1.2.2'
     implementation "org.tensorflow:tensorflow-lite:0.0.0-nightly"
+    implementation 'org.tensorflow:tensorflow-lite-select-tf-ops:0.0.0-nightly'
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.2"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.2"
     implementation 'com.google.android.gms:play-services:7.8+'
@@ -58,6 +59,6 @@ dependencies {
     implementation 'io.reactivex:rxjava:1.3.0'
     implementation 'com.squareup.retrofit2:adapter-rxjava:2.3.0'
     implementation 'org.apache.commons:commons-lang3:3.7'
-
+    implementation 'org.tensorflow:tensorflow-lite:2.8.0'
 
 }

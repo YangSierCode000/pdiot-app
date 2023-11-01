@@ -71,51 +71,65 @@ class LiveDataActivity : AppCompatActivity() {
     private lateinit var tflite_thingy: Interpreter
     private lateinit var tflite_res: Interpreter
     val activities = mapOf(
-        0 to "ascending stairs normal",
-        1 to "descending stairs normal",
-        2 to "lying down back coughing",
-        3 to "lying down back hyperventilating",
-        4 to "lying down back laughing",
-        5 to "lying down back normal",
-        6 to "lying down back singing",
-        7 to "lying down back talking",
-        8 to "lying down on left coughing",
-        9 to "lying down on left hyperventilating",
-        10 to "lying down on left laughing",
-        11 to "lying down on left normal",
-        12 to "lying down on left singing",
-        13 to "lying down on left talking",
-        14 to "lying down on stomach coughing",
-        15 to "lying down on stomach hyperventilating",
-        16 to "lying down on stomach laughing",
-        17 to "lying down on stomach normal",
-        18 to "lying down on stomach singing",
-        19 to "lying down on stomach talking",
-        20 to "lying down right coughing",
-        21 to "lying down right hyperventilating",
-        22 to "lying down right laughing",
-        23 to "lying down right normal",
-        24 to "lying down right singing",
-        25 to "lying down right talking",
-        26 to "miscellaneous movements normal",
-        27 to "normal walking normal",
-        28 to "running normal",
-        29 to "shuffle walking normal",
-        30 to "sitting coughing",
-        31 to "sitting eating",
-        32 to "sitting hyperventilating",
-        33 to "sitting laughing",
-        34 to "sitting normal",
-        35 to "sitting singing",
-        36 to "sitting talking",
-        37 to "standing coughing",
-        38 to "standing eating",
-        39 to "standing hyperventilating",
-        40 to "standing laughing",
-        41 to "standing normal",
-        42 to "standing singing",
-        43 to "standing talking"
+        0 to "Ascending stairs",
+        1 to "Descending stairs",
+        2 to "Lying down back",
+        3 to "Lying down on left",
+        4 to "Lying down on stomach",
+        5 to "Lying down right",
+        6 to "Miscellaneous movements",
+        7 to "Normal walking",
+        8 to "Running",
+        9 to "Shuffle walking",
+        10 to "Sitting",
+        11 to "Standing"
     )
+//    val activities = mapOf(
+//        0 to "ascending stairs normal",
+//        1 to "descending stairs normal",
+//        2 to "lying down back coughing",
+//        3 to "lying down back hyperventilating",
+//        4 to "lying down back laughing",
+//        5 to "lying down back normal",
+//        6 to "lying down back singing",
+//        7 to "lying down back talking",
+//        8 to "lying down on left coughing",
+//        9 to "lying down on left hyperventilating",
+//        10 to "lying down on left laughing",
+//        11 to "lying down on left normal",
+//        12 to "lying down on left singing",
+//        13 to "lying down on left talking",
+//        14 to "lying down on stomach coughing",
+//        15 to "lying down on stomach hyperventilating",
+//        16 to "lying down on stomach laughing",
+//        17 to "lying down on stomach normal",
+//        18 to "lying down on stomach singing",
+//        19 to "lying down on stomach talking",
+//        20 to "lying down right coughing",
+//        21 to "lying down right hyperventilating",
+//        22 to "lying down right laughing",
+//        23 to "lying down right normal",
+//        24 to "lying down right singing",
+//        25 to "lying down right talking",
+//        26 to "miscellaneous movements normal",
+//        27 to "normal walking normal",
+//        28 to "running normal",
+//        29 to "shuffle walking normal",
+//        30 to "sitting coughing",
+//        31 to "sitting eating",
+//        32 to "sitting hyperventilating",
+//        33 to "sitting laughing",
+//        34 to "sitting normal",
+//        35 to "sitting singing",
+//        36 to "sitting talking",
+//        37 to "standing coughing",
+//        38 to "standing eating",
+//        39 to "standing hyperventilating",
+//        40 to "standing laughing",
+//        41 to "standing normal",
+//        42 to "standing singing",
+//        43 to "standing talking"
+//    )
     val minVal = -300f
     val maxVal = 300f
 
@@ -227,7 +241,8 @@ class LiveDataActivity : AppCompatActivity() {
 //        val options_thingy = Interpreter.Options()
 //        tflite_thingy = Interpreter(tfliteModel_thingy, options_thingy)
 
-        val modelPath_res = "model_respeck_accl_gyro_no_norm_25.tflite"
+        val modelPath_res = "model_respeck_accl_only_no_norm_task_1_50.tflite"
+//        val modelPath_res = "model_respeck_accl_gyro_norm_task_5_50.tflite"
         val assetFileDescriptor_res: AssetFileDescriptor = assets.openFd(modelPath_res)
         val fileInputStream_res = assetFileDescriptor_res.createInputStream()
         val fileChannel_res: FileChannel = fileInputStream_res.channel
@@ -310,8 +325,8 @@ class LiveDataActivity : AppCompatActivity() {
 
     fun runModelWithResAvailableData() {
         // Make sure you have enough data
-        if (dataSet_res_accel_x.entryCount < 25
-            || dataSet_res_accel_x.entryCount % 100 != 0
+        if (dataSet_res_accel_x.entryCount < 50
+//            || dataSet_res_accel_x.entryCount % 25 != 0
         ) {
             return
         }
@@ -325,32 +340,34 @@ class LiveDataActivity : AppCompatActivity() {
         val entries_res_gyro_z = dataSet_res_gyro_z.values
 
         // Create a ByteBuffer to hold the float values for input to the TFLite model
-        val inputBuffer: ByteBuffer = ByteBuffer.allocateDirect(4 * 25 * 6)
+        val inputBuffer: ByteBuffer = ByteBuffer.allocateDirect(4 * 50 * 3)
+//        val inputBuffer: ByteBuffer = ByteBuffer.allocateDirect(4 * 50 * 6)
 
         // Populate the ByteBuffer, where y is the reading and x is the time
-        val startIndex = dataSet_res_accel_x.entryCount - 25
-        for (i in startIndex until startIndex + 25) {
+        val startIndex = dataSet_res_accel_x.entryCount - 50
+        for (i in startIndex until startIndex + 50) {
             inputBuffer.putFloat(entries_res_accel_x[i].y)
             inputBuffer.putFloat(entries_res_accel_y[i].y)
             inputBuffer.putFloat(entries_res_accel_z[i].y)
 
-            // Normalize the y-values of the gyro data
-            val normalizedGyroX = (entries_res_gyro_x[i].y - minVal) / (maxVal - minVal)
-            val normalizedGyroY = (entries_res_gyro_y[i].y - minVal) / (maxVal - minVal)
-            val normalizedGyroZ = (entries_res_gyro_z[i].y - minVal) / (maxVal - minVal)
-
-            // Now put these normalized values into the inputBuffer
-            inputBuffer.putFloat(normalizedGyroX)
-            inputBuffer.putFloat(normalizedGyroY)
-            inputBuffer.putFloat(normalizedGyroZ)
+//            // Normalize the y-values of the gyro data
+//            val normalizedGyroX = (entries_res_gyro_x[i].y - minVal) / (maxVal - minVal)
+//            val normalizedGyroY = (entries_res_gyro_y[i].y - minVal) / (maxVal - minVal)
+//            val normalizedGyroZ = (entries_res_gyro_z[i].y - minVal) / (maxVal - minVal)
+//
+//            // Now put these normalized values into the inputBuffer
+//            inputBuffer.putFloat(normalizedGyroX)
+//            inputBuffer.putFloat(normalizedGyroY)
+//            inputBuffer.putFloat(normalizedGyroZ)
         }
 
         // Prepare the output buffer
-        val outputBuffer: ByteBuffer = ByteBuffer.allocateDirect(48)
+        val outputBuffer: ByteBuffer = ByteBuffer.allocateDirect(12 * 4)
+//        val outputBuffer: ByteBuffer = ByteBuffer.allocateDirect(44 * 4)
 //        outputBuffer.order(ByteOrder.nativeOrder())
 
         // Run inference using TensorFlow Lite
-        tflite_thingy.run(inputBuffer, outputBuffer)
+        tflite_res.run(inputBuffer, outputBuffer)
 
         // Rewind the buffer to the beginning so we can read from it
         outputBuffer.rewind()

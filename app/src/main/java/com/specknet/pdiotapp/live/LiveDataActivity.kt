@@ -326,7 +326,7 @@ class LiveDataActivity : AppCompatActivity() {
     fun runModelWithResAvailableData() {
         // Make sure you have enough data
         if (dataSet_res_accel_x.entryCount < 50
-//            || dataSet_res_accel_x.entryCount % 25 != 0
+            || dataSet_res_accel_x.entryCount % 25 != 0
         ) {
             return
         }

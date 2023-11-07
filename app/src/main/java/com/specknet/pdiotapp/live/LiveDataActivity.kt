@@ -71,67 +71,54 @@ class LiveDataActivity : AppCompatActivity() {
     private lateinit var tflite_thingy: Interpreter
     private lateinit var tflite_res: Interpreter
     val activities = mapOf(
-        0 to "Ascending stairs",
-        1 to "Descending stairs",
-        2 to "Lying down back",
-        3 to "Lying down on left",
-        4 to "Lying down on stomach",
-        5 to "Lying down right",
-        6 to "Miscellaneous movements",
-        7 to "Normal walking",
-        8 to "Running",
-        9 to "Shuffle walking",
-        10 to "Sitting",
-        11 to "Standing"
+        0 to "ascending stairs normal",
+        1 to "descending stairs normal",
+        2 to "lying down back coughing",
+        3 to "lying down back hyperventilating",
+        4 to "lying down back laughing",
+        5 to "lying down back normal",
+        6 to "lying down back singing",
+        7 to "lying down back talking",
+        8 to "lying down on left coughing",
+        9 to "lying down on left hyperventilating",
+        10 to "lying down on left laughing",
+        11 to "lying down on left normal",
+        12 to "lying down on left singing",
+        13 to "lying down on left talking",
+        14 to "lying down on stomach coughing",
+        15 to "lying down on stomach hyperventilating",
+        16 to "lying down on stomach laughing",
+        17 to "lying down on stomach normal",
+        18 to "lying down on stomach singing",
+        19 to "lying down on stomach talking",
+        20 to "lying down right coughing",
+        21 to "lying down right hyperventilating",
+        22 to "lying down right laughing",
+        23 to "lying down right normal",
+        24 to "lying down right singing",
+        25 to "lying down right talking",
+        26 to "miscellaneous movements normal",
+        27 to "normal walking normal",
+        28 to "running normal",
+        29 to "shuffle walking normal",
+        30 to "sitting coughing",
+        31 to "sitting eating",
+        32 to "sitting hyperventilating",
+        33 to "sitting laughing",
+        34 to "sitting normal",
+        35 to "sitting singing",
+        36 to "sitting talking",
+        37 to "standing coughing",
+        38 to "standing eating",
+        39 to "standing hyperventilating",
+        40 to "standing laughing",
+        41 to "standing normal",
+        42 to "standing singing",
+        43 to "standing talking"
     )
-//    val activities = mapOf(
-//        0 to "ascending stairs normal",
-//        1 to "descending stairs normal",
-//        2 to "lying down back coughing",
-//        3 to "lying down back hyperventilating",
-//        4 to "lying down back laughing",
-//        5 to "lying down back normal",
-//        6 to "lying down back singing",
-//        7 to "lying down back talking",
-//        8 to "lying down on left coughing",
-//        9 to "lying down on left hyperventilating",
-//        10 to "lying down on left laughing",
-//        11 to "lying down on left normal",
-//        12 to "lying down on left singing",
-//        13 to "lying down on left talking",
-//        14 to "lying down on stomach coughing",
-//        15 to "lying down on stomach hyperventilating",
-//        16 to "lying down on stomach laughing",
-//        17 to "lying down on stomach normal",
-//        18 to "lying down on stomach singing",
-//        19 to "lying down on stomach talking",
-//        20 to "lying down right coughing",
-//        21 to "lying down right hyperventilating",
-//        22 to "lying down right laughing",
-//        23 to "lying down right normal",
-//        24 to "lying down right singing",
-//        25 to "lying down right talking",
-//        26 to "miscellaneous movements normal",
-//        27 to "normal walking normal",
-//        28 to "running normal",
-//        29 to "shuffle walking normal",
-//        30 to "sitting coughing",
-//        31 to "sitting eating",
-//        32 to "sitting hyperventilating",
-//        33 to "sitting laughing",
-//        34 to "sitting normal",
-//        35 to "sitting singing",
-//        36 to "sitting talking",
-//        37 to "standing coughing",
-//        38 to "standing eating",
-//        39 to "standing hyperventilating",
-//        40 to "standing laughing",
-//        41 to "standing normal",
-//        42 to "standing singing",
-//        43 to "standing talking"
-//    )
     val minVal = -300f
     val maxVal = 300f
+    var pastActivity: String = ""
 
 
 
@@ -389,10 +376,16 @@ class LiveDataActivity : AppCompatActivity() {
         }
 
         Log.i("Model", outputIndex.toString())
+        val currentActivity = activities[outputIndex].toString()
 
-        val currentActivity = activities[outputIndex]
-        // Update the TextView
-        (findViewById<TextView>(R.id.currentAct)).text = "Current Activity: $currentActivity"
+        if (pastActivity == "") {
+            pastActivity = currentActivity
+            findViewById<TextView>(R.id.currentAct).text = "Current Activity: $currentActivity"
+        } else if (pastActivity == currentActivity) {
+            findViewById<TextView>(R.id.currentAct).text = "Current Activity: $currentActivity"
+        } else {
+            pastActivity = currentActivity
+        }
 
     }
 

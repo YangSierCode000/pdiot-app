@@ -1,5 +1,6 @@
 package com.specknet.pdiotapp
 
+import com.specknet.pdiotapp.user.*
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var liveProcessingButton: Button
     lateinit var pairingButton: Button
     lateinit var recordButton: Button
+    lateinit var historyButton: Button
 
     // permissions
     lateinit var permissionAlertDialog: AlertDialog.Builder
@@ -60,10 +62,17 @@ class MainActivity : AppCompatActivity() {
             val introIntent = Intent(this, OnBoardingActivity::class.java)
             startActivity(introIntent)
         }
-
+        // Check if the user is logged in
+        if (!isLoggedIn()) {
+            // User is not logged in, redirect to LoginActivity
+            val intent = Intent(this, com.specknet.pdiotapp.user.LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            startActivity(intent)
+        }
         liveProcessingButton = findViewById(R.id.live_button)
         pairingButton = findViewById(R.id.ble_button)
         recordButton = findViewById(R.id.record_button)
+        historyButton = findViewById(R.id.history_button)
 
         permissionAlertDialog = AlertDialog.Builder(this)
 
@@ -81,17 +90,46 @@ class MainActivity : AppCompatActivity() {
 
     fun setupClickListeners() {
         liveProcessingButton.setOnClickListener {
+            // Check if the user is logged in
+            if (!isLoggedIn()) {
+                // User is not logged in, redirect to LoginActivity
+                val intent = Intent(this, com.specknet.pdiotapp.user.LoginActivity::class.java)
+                startActivity(intent)
+            }
             val intent = Intent(this, LiveDataActivity::class.java)
             startActivity(intent)
         }
 
         pairingButton.setOnClickListener {
+            // Check if the user is logged in
+            if (!isLoggedIn()) {
+                // User is not logged in, redirect to LoginActivity
+                val intent = Intent(this, LoginActivity::class.java)
+                startActivity(intent)
+            }
             val intent = Intent(this, ConnectingActivity::class.java)
             startActivity(intent)
         }
 
         recordButton.setOnClickListener {
+            // Check if the user is logged in
+            if (!isLoggedIn()) {
+                // User is not logged in, redirect to LoginActivity
+                val intent = Intent(this, com.specknet.pdiotapp.user.LoginActivity::class.java)
+                startActivity(intent)
+            }
             val intent = Intent(this, RecordingActivity::class.java)
+            startActivity(intent)
+        }
+
+       historyButton.setOnClickListener {
+            // Check if the user is logged in
+            if (!isLoggedIn()) {
+                // User is not logged in, redirect to LoginActivity
+                val intent = Intent(this, com.specknet.pdiotapp.user.LoginActivity::class.java)
+                startActivity(intent)
+            }
+            val intent = Intent(this, HistoryActivity::class.java)
             startActivity(intent)
         }
     }
@@ -268,5 +306,8 @@ class MainActivity : AppCompatActivity() {
 
         return super.onOptionsItemSelected(item)
     }
-
+    private fun isLoggedIn(): Boolean {
+        val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
+        return sharedPreferences.getBoolean("isLoggedIn", false)
+    }
 }

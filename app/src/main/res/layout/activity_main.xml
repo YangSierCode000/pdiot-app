@@ -15,7 +15,7 @@
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100px"
+            android:layout_marginTop="0px"
             android:text="I want to"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -26,7 +26,7 @@
             android:id="@+id/record_button"
             android:layout_width="550px"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100px"
+            android:layout_marginTop="10px"
             android:background="#03A9F4"
             android:text="Record data"
             android:textColor="#FFFFFF"
@@ -40,7 +40,7 @@
             android:id="@+id/live_button"
             android:layout_width="550px"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100px"
+            android:layout_marginTop="10px"
             android:background="#03A9F4"
             android:text="Watch live processing"
             android:textColor="#FFFFFF"
@@ -55,8 +55,8 @@
             android:layout_width="550px"
             android:layout_height="wrap_content"
             android:text="Connect sensors"
-            android:layout_marginTop="100px"
-            android:layout_marginBottom="100px"
+            android:layout_marginTop="10px"
+            android:layout_marginBottom="350px"
             android:background="#03A9F4"
             android:textColor="#FFFFFF"
             app:layout_constraintTop_toBottomOf="@+id/live_button"
@@ -64,6 +64,21 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             />
+
+        <Button
+            android:id="@+id/history_button"
+            android:layout_width="550px"
+            android:layout_height="wrap_content"
+            android:text="View History"
+            android:layout_marginTop="150px"
+            android:layout_marginBottom="200px"
+            android:background="#03A9F4"
+            android:textColor="#FFFFFF"
+            app:layout_constraintTop_toBottomOf="@+id/ble_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+        />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

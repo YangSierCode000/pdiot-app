@@ -7,4 +7,72 @@
     android:layout_height="match_parent"
     tools:context=".user.HistoryActivity">
 
+    <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="50px">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Topic TextView centered at the top -->
+            <TextView
+                android:id="@+id/textViewTopic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="Browse Historical Data"
+                android:textSize="24sp"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- "From" TextView and Date Picker -->
+            <TextView
+                android:id="@+id/textViewFrom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/textViewTopic"
+                android:layout_marginTop="16dp"
+                android:text="From:" />
+
+            <DatePicker
+                android:id="@+id/datePickerFrom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/textViewTopic"
+                android:layout_toRightOf="@id/textViewFrom"
+                android:layout_marginTop="16dp"
+                android:layout_marginLeft="10dp" />
+
+            <!-- "To" TextView and Date Picker -->
+            <TextView
+                android:id="@+id/textViewTo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/datePickerFrom"
+                android:layout_marginTop="16dp"
+                android:text="To:" />
+
+            <DatePicker
+                android:id="@+id/datePickerTo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/datePickerFrom"
+                android:layout_toRightOf="@id/textViewTo"
+                android:layout_marginTop="16dp"
+                android:layout_marginLeft="10dp"/>
+
+            <!-- Confirm Button -->
+            <Button
+                android:id="@+id/btnConfirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/datePickerTo"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="16dp"
+                android:background="@android:color/holo_blue_light"
+                android:text="Confirm"/>
+        </RelativeLayout>
+    </ScrollView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

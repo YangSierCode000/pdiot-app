@@ -31,6 +31,8 @@ import com.specknet.pdiotapp.utils.ThingyLiveData
 import org.tensorflow.lite.Interpreter
 import java.nio.*
 import java.nio.channels.FileChannel
+import com.specknet.pdiotapp.HistoryDB
+import com.specknet.pdiotapp.HistorySingleton
 
 
 class LiveDataActivity : AppCompatActivity() {
@@ -113,6 +115,8 @@ class LiveDataActivity : AppCompatActivity() {
     val minVal = -300f
     val maxVal = 300f
     var pastActivity: String = ""
+    private val historySingleton: HistorySingleton by lazy { HistorySingleton.getInstance(applicationContext) }
+    private val historyDB: HistoryDB by lazy { historySingleton.historyDB }
 
 
 
@@ -222,8 +226,8 @@ class LiveDataActivity : AppCompatActivity() {
 //        val options_thingy = Interpreter.Options()
 //        tflite_thingy = Interpreter(tfliteModel_thingy, options_thingy)
 
-        val modelPath_res = "model_respeck_accl_only_no_norm_task_1_50.tflite"
-//        val modelPath_res = "model_respeck_accl_gyro_norm_task_5_50.tflite"
+        //val modelPath_res = "model_respeck_accl_only_no_norm_task_1_50.tflite"
+        val modelPath_res = "model_respeck_accl_gyro_norm_task_5_50.tflite"
         val assetFileDescriptor_res: AssetFileDescriptor = assets.openFd(modelPath_res)
         val fileInputStream_res = assetFileDescriptor_res.createInputStream()
         val fileChannel_res: FileChannel = fileInputStream_res.channel
@@ -371,18 +375,52 @@ class LiveDataActivity : AppCompatActivity() {
 
         Log.i("Model", outputIndex.toString())
         val currentActivity = activities[outputIndex].toString()
-
+        val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
+        val isRecording = sharedPreferences.getBoolean("recording", false)
         if (pastActivity == "") {
             pastActivity = currentActivity
             findViewById<TextView>(R.id.currentAct).text = "Current Activity: $currentActivity"
+            if (isRecording) {
+                recordData(currentActivity)
+            } else {
+                // don't do anything
+            }
+
         } else if (pastActivity == currentActivity) {
             findViewById<TextView>(R.id.currentAct).text = "Current Activity: $currentActivity"
+            if (isRecording) {
+                recordData(currentActivity)
+            } else {
+                // don't do anything
+            }
         } else {
             pastActivity = currentActivity
         }
 
     }
 
+
+    fun recordData(activity: String) {
+        val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
+        val classifiedLabel = "ascending stairs normal"
+        val username = sharedPreferences.getString("username", "").toString()
+        val currentDate = System.currentTimeMillis()
+        val durationInSeconds = 2L
+
+        val existingActivityData = historyDB.getActivityData(username, currentDate, currentDate)
+
+        if (existingActivityData.isNotEmpty()) {
+            val existingDuration = existingActivityData.first().durationInSeconds
+            val updatedDuration = existingDuration + durationInSeconds
+
+            // Update the existing record in the database
+            historyDB.updateActivityData(username, currentDate, classifiedLabel, updatedDuration)
+        } else {
+            // If no record exists, insert a new record
+            val activityData = HistoryDB.ActivityData(username, currentDate, classifiedLabel, durationInSeconds)
+            historyDB.insertActivityData(activityData)
+        }
+    }
 
     fun setupCharts() {
         respeckChart = findViewById(R.id.respeck_chart)

@@ -364,6 +364,9 @@ class RecordingActivity : AppCompatActivity() {
             mIsRespeckRecording = true
             mIsThingyRecording = false
         }
+        val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
+        sharedPreferences.edit().putBoolean("recording", true)
+
     }
 
     private fun stopRecording() {
@@ -378,7 +381,9 @@ class RecordingActivity : AppCompatActivity() {
         mIsThingyRecording = false
 
         saveRecording()
-
+        val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putBoolean("recording", false)
     }
 
     private fun saveRecording() {

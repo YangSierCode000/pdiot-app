@@ -30,6 +30,7 @@ class LoginActivity : AppCompatActivity() {
                 val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
                 val editor = sharedPreferences.edit()
                 editor.putBoolean("isLoggedIn", true)
+                editor.putString("username", username)
                 editor.apply()
                 val intent = Intent(this, MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK

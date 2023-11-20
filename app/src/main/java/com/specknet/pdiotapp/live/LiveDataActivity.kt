@@ -33,6 +33,8 @@ import java.nio.*
 import java.nio.channels.FileChannel
 import com.specknet.pdiotapp.HistoryDB
 import com.specknet.pdiotapp.HistorySingleton
+import java.util.LinkedList
+import java.util.Queue
 
 
 class LiveDataActivity : AppCompatActivity() {
@@ -73,48 +75,23 @@ class LiveDataActivity : AppCompatActivity() {
     private lateinit var tflite_thingy: Interpreter
     private lateinit var tflite_res: Interpreter
     val activities = mapOf(
-        0 to "ascending stairs normal",
-        1 to "descending stairs normal",
-        2 to "lying down on back coughing",
-        3 to "lying down on back hyperventilating",
-        4 to "lying down on back laughing",
-        5 to "lying down on back normal",
-        6 to "lying down on back singing",
-        7 to "lying down on back talking",
-        8 to "lying down on left coughing",
-        9 to "lying down on left hyperventilating",
-        10 to "lying down on left laughing",
-        11 to "lying down on left normal",
-        12 to "lying down on left singing",
-        13 to "lying down on left talking",
-        14 to "lying down on right coughing",
-        15 to "lying down on right hyperventilating",
-        16 to "lying down on right laughing",
-        17 to "lying down on right normal",
-        18 to "lying down on right singing",
-        19 to "lying down on right talking",
-        20 to "lying down on stomach coughing",
-        21 to "lying down on stomach hyperventilating",
-        22 to "lying down on stomach laughing",
-        23 to "lying down on stomach normal",
-        24 to "lying down on stomach singing",
-        25 to "lying down on stomach talking",
-        26 to "miscellaneous movements normal",
-        27 to "normal walking normal",
-        28 to "running normal",
-        29 to "shuffle walking normal",
-        30 to "sitting/standing coughing",
-        31 to "sitting/standing eating",
-        32 to "sitting/standing hyperventilating",
-        33 to "sitting/standing laughing",
-        34 to "sitting/standing normal",
-        35 to "sitting/standing singing",
-        36 to "sitting/standing talking"
+        0 to "ascending stairs",
+        1 to "descending stairs",
+        2 to "lying down on back",
+        3 to "lying down on left",
+        4 to "lying down on right",
+        5 to "lying down on stomach",
+        6 to "miscellaneous movements",
+        7 to "normal walking",
+        8 to "running",
+        9 to "shuffle walking",
+        10 to "sitting/standing"
     )
+    private val pastActivities: Queue<String> = LinkedList()
+
 
     val minVal = -300f
     val maxVal = 300f
-    var pastActivity: String = ""
     private val historySingleton: HistorySingleton by lazy { HistorySingleton.getInstance(applicationContext) }
     private val historyDB: HistoryDB by lazy { historySingleton.historyDB }
 
@@ -226,8 +203,8 @@ class LiveDataActivity : AppCompatActivity() {
 //        val options_thingy = Interpreter.Options()
 //        tflite_thingy = Interpreter(tfliteModel_thingy, options_thingy)
 
-        //val modelPath_res = "model_respeck_accl_only_no_norm_task_1_50.tflite"
-        val modelPath_res = "model_respeck_accl_gyro_norm_task_5_50.tflite"
+        val modelPath_res = "model_respeck_accl_only_no_norm_task_1_50.tflite"
+//        val modelPath_res = "model_respeck_accl_gyro_norm_task_5_50.tflite"
         val assetFileDescriptor_res: AssetFileDescriptor = assets.openFd(modelPath_res)
         val fileInputStream_res = assetFileDescriptor_res.createInputStream()
         val fileChannel_res: FileChannel = fileInputStream_res.channel
@@ -311,7 +288,7 @@ class LiveDataActivity : AppCompatActivity() {
     fun runModelWithResAvailableData() {
         // Make sure you have enough data
         if (dataSet_res_accel_x.entryCount < 50
-            || dataSet_res_accel_x.entryCount % 25 != 0
+            || dataSet_res_accel_x.entryCount % 10 != 0
         ) {
             return
         }
@@ -335,6 +312,11 @@ class LiveDataActivity : AppCompatActivity() {
             inputBuffer.putFloat(entries_res_accel_y[i].y)
             inputBuffer.putFloat(entries_res_accel_z[i].y)
 
+            // Log the accelerometer values
+            Log.d("AccelDataX", entries_res_accel_x[i].y.toString())
+            Log.d("AccelDataY", entries_res_accel_y[i].y.toString())
+            Log.d("AccelDataZ", entries_res_accel_z[i].y.toString())
+
 //            // Normalize the y-values of the gyro data
 //            val normalizedGyroX = (entries_res_gyro_x[i].y - minVal) / (maxVal - minVal)
 //            val normalizedGyroY = (entries_res_gyro_y[i].y - minVal) / (maxVal - minVal)
@@ -344,11 +326,16 @@ class LiveDataActivity : AppCompatActivity() {
 //            inputBuffer.putFloat(normalizedGyroX)
 //            inputBuffer.putFloat(normalizedGyroY)
 //            inputBuffer.putFloat(normalizedGyroZ)
+//
+//            // Log the normalized gyro values
+//            Log.d("NormalizedGyroX", normalizedGyroX.toString())
+//            Log.d("NormalizedGyroY", normalizedGyroY.toString())
+//            Log.d("NormalizedGyroZ", normalizedGyroZ.toString())
         }
 
         // Prepare the output buffer
-        val outputBuffer: ByteBuffer = ByteBuffer.allocateDirect(12 * 4)
-//        val outputBuffer: ByteBuffer = ByteBuffer.allocateDirect(44 * 4)
+//        val outputBuffer: ByteBuffer = ByteBuffer.allocateDirect(37 * 4)
+        val outputBuffer: ByteBuffer = ByteBuffer.allocateDirect(11 * 4)
 //        outputBuffer.order(ByteOrder.nativeOrder())
 
         // Run inference using TensorFlow Lite
@@ -365,7 +352,7 @@ class LiveDataActivity : AppCompatActivity() {
         var outputIndex = 0
 
         // Iterate through the output buffer to find the maximum value and index
-        for (i in 1 until floatBuffer.limit()) {
+        for (i in 0 until floatBuffer.limit()) {
             val currentValue = floatBuffer.get(i)
             if (currentValue > maxValue) {
                 maxValue = currentValue
@@ -375,28 +362,31 @@ class LiveDataActivity : AppCompatActivity() {
 
         Log.i("Model", outputIndex.toString())
         val currentActivity = activities[outputIndex].toString()
+        // Update the queue with the new activity
+        if (pastActivities.size >= 5) {
+            pastActivities.remove()
+        }
+        pastActivities.add(currentActivity)
+        val mostFrequentActivity = findMostFrequentActivity()
+
         val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
         val isRecording = sharedPreferences.getBoolean("recording", false)
-        if (pastActivity == "") {
-            pastActivity = currentActivity
-            findViewById<TextView>(R.id.currentAct).text = "Current Activity: $currentActivity"
-            if (isRecording) {
-                recordData(currentActivity)
-            } else {
-                // don't do anything
-            }
-
-        } else if (pastActivity == currentActivity) {
-            findViewById<TextView>(R.id.currentAct).text = "Current Activity: $currentActivity"
-            if (isRecording) {
-                recordData(currentActivity)
-            } else {
-                // don't do anything
-            }
+        findViewById<TextView>(R.id.currentAct).text = "Current Activity: $mostFrequentActivity"
+        if (isRecording) {
+            recordData(currentActivity)
         } else {
-            pastActivity = currentActivity
+            // don't do anything
         }
+    }
 
+    // Function to find the most frequent activity
+    private fun findMostFrequentActivity(): String? {
+        val frequencyMap = HashMap<String, Int>()
+        for (activity in pastActivities) {
+            val count = frequencyMap[activity] ?: 0
+            frequencyMap[activity] = count + 1
+        }
+        return frequencyMap.maxByOrNull { it.value }?.key
     }
 
 

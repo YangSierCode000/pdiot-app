@@ -20,11 +20,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.specknet.pdiotapp.R
 import com.specknet.pdiotapp.barcode.BarcodeActivity
+import com.specknet.pdiotapp.databinding.ActivityConnectingBinding
 import com.specknet.pdiotapp.utils.Constants
 import com.specknet.pdiotapp.utils.Utils
-import com.specknet.pdiotapp.databinding.ActivityConnectingBinding
 import java.util.*
-import kotlin.experimental.and
 
 class ConnectingActivity : AppCompatActivity() {
 
@@ -92,7 +91,7 @@ class ConnectingActivity : AppCompatActivity() {
 
 
         // first read shared preferences to see if there was a respeck there already
-        sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, Context.MODE_PRIVATE)
         if (sharedPreferences.contains(Constants.RESPECK_MAC_ADDRESS_PREF)) {
             Log.i("sharedpref", "Already saw a respeckID")
             binding.respeckCode.setText(
@@ -141,7 +140,7 @@ class ConnectingActivity : AppCompatActivity() {
         respeckID.filters = arrayOf<InputFilter>(AllCaps())
 
         thingyID.filters = arrayOf<InputFilter>(AllCaps())
-        val nfcManager = getSystemService(NFC_SERVICE) as NfcManager
+        val nfcManager = getSystemService(Context.NFC_SERVICE) as NfcManager
         nfcAdapter = nfcManager.defaultAdapter
 
         if (nfcAdapter == null) {
@@ -190,8 +189,7 @@ class ConnectingActivity : AppCompatActivity() {
         Log.d(TAG, "setupForegroundDispatch: here ")
         val intent = Intent(activity.applicationContext, activity.javaClass)
         intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-        val pendingIntent = PendingIntent.getActivity(activity.applicationContext, 0, intent,
-            PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent = PendingIntent.getActivity(activity.applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
         val filters = arrayOfNulls<IntentFilter>(2)
         val techList = arrayOf(

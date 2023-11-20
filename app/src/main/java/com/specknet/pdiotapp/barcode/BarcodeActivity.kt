@@ -1,16 +1,17 @@
 package com.specknet.pdiotapp.barcode
 
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.util.SparseArray
 import android.view.SurfaceHolder
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
@@ -20,9 +21,6 @@ import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import com.specknet.pdiotapp.R
 import com.specknet.pdiotapp.databinding.ActivityBarcodeBinding
-
-
-import java.lang.Exception
 
 class BarcodeActivity : AppCompatActivity() {
 
@@ -119,7 +117,7 @@ class BarcodeActivity : AppCompatActivity() {
                 finish()
 
             } else {
-                Log.i("Barcode", "Don't see nothin")
+                Log.i("Barcode", "Don't see nothing")
 
                 runOnUiThread {
                     binding.textScanResult.text = ""

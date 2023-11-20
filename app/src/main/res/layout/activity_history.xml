@@ -71,7 +71,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="16dp"
                 android:background="@android:color/holo_blue_light"
-                android:text="Confirm"/>
+                android:text="Confirm"
+                style="@style/ButtonStyle3"
+                />
         </RelativeLayout>
     </ScrollView>
 

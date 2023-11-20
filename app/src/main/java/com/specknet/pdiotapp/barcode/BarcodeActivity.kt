@@ -19,7 +19,9 @@ import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import com.specknet.pdiotapp.R
-import kotlinx.android.synthetic.main.activity_barcode.*
+import com.specknet.pdiotapp.databinding.ActivityBarcodeBinding
+
+
 import java.lang.Exception
 
 class BarcodeActivity : AppCompatActivity() {
@@ -27,6 +29,7 @@ class BarcodeActivity : AppCompatActivity() {
     private val requestCodeCameraPermission = 1001
     private lateinit var cameraSource: CameraSource
     private lateinit var detector: BarcodeDetector
+    private lateinit var binding: ActivityBarcodeBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +51,7 @@ class BarcodeActivity : AppCompatActivity() {
         cameraSource = CameraSource.Builder(this, detector)
             .setAutoFocusEnabled(true)
             .build()
-        cameraSurfaceView.holder.addCallback(surfaceCallBack)
+        binding.cameraSurfaceView.holder.addCallback(surfaceCallBack)
         detector.setProcessor(processor)
     }
 
@@ -107,7 +110,7 @@ class BarcodeActivity : AppCompatActivity() {
                 val code = qrCodes.valueAt(0)
 
                 runOnUiThread {
-                    textScanResult.text = code.displayValue
+                    binding.textScanResult.text = code.displayValue
                 }
 
                 val returnIntent = Intent()
@@ -119,7 +122,7 @@ class BarcodeActivity : AppCompatActivity() {
                 Log.i("Barcode", "Don't see nothin")
 
                 runOnUiThread {
-                    textScanResult.text = ""
+                    binding.textScanResult.text = ""
                 }
 
             }

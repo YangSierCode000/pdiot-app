@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/purple_gradient"
     tools:context=".bluetooth.ConnectingActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -29,11 +30,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Respeck"
+                    android:textColor="@color/black"
                     android:textSize="30dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/black"
                     android:text="If your phone supports NFC, tap it against the white surface of the Respeck to obtain the ID.\nYou can also find the ID on the Respeck label, or scan the Respeck QR code by pressing the Scan QR button."
                     android:layout_marginTop="20dp"/>
 
@@ -42,6 +45,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Respeck ID"
+                    android:textColor="@color/black"
                     android:layout_marginTop="30dp"/>
 
                 <LinearLayout
@@ -55,12 +59,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:ems="10"
+                        android:textColor="@color/black"
                         android:inputType="textPersonName"
                         android:hint="Enter Respeck ID"/>
 
                     <Button
                         android:id="@+id/scan_respeck"
                         android:layout_width="wrap_content"
+                        android:textColor="@color/black"
                         android:layout_height="wrap_content"
                         android:text="Scan QR"/>
                 </LinearLayout>

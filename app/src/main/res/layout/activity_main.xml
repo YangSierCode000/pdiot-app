@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/purple_gradient"
     android:id="@+id/coordinatorLayout"
     tools:context=".MainActivity">
 
@@ -11,29 +12,102 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <Button
+            android:id="@+id/button"
+            android:layout_width="84dp"
+            android:layout_height="73dp"
+            android:background="@drawable/baseline_arrow_back_24"
+            tools:ignore="MissingConstraints,SpeakableTextPresentCheck"
+            tools:layout_editor_absoluteX="6dp"
+            tools:layout_editor_absoluteY="16dp"
+            style="@style/ButtonStyle"/>
+
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="124dp"
+            android:layout_height="78dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/baseline_pageview_24"
+            app:layout_constraintBottom_toTopOf="@+id/history_button"
+            app:layout_constraintTop_toBottomOf="@+id/ble_button"
+            tools:layout_editor_absoluteX="143dp"
+            tools:ignore="MissingConstraints"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="144dp"
+            android:layout_height="96dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/baseline_sensors_24"
+            app:layout_constraintBottom_toTopOf="@+id/ble_button"
+            app:layout_constraintTop_toBottomOf="@+id/live_button"
+            tools:layout_editor_absoluteX="133dp"
+            tools:ignore="MissingConstraints"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="135dp"
+            android:layout_height="73dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/baseline_cast_24"
+            app:layout_constraintBottom_toTopOf="@+id/live_button"
+            app:layout_constraintTop_toBottomOf="@+id/record_button"
+            tools:layout_editor_absoluteX="138dp"
+            tools:ignore="MissingConstraints"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="122dp"
+            android:layout_height="77dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="5dp"
+            android:src="@drawable/baseline_auto_graph_24"
+            app:layout_constraintBottom_toTopOf="@+id/record_button"
+            app:layout_constraintTop_toBottomOf="@+id/textView2"
+            tools:layout_editor_absoluteX="144dp"
+            tools:ignore="MissingConstraints"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
         <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="0px"
-            android:text="I want to"
+            android:layout_marginTop="50px"
+            android:text="Select Task"
+            android:textColor="@color/black"
+
+            android:textSize="30sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/record_button"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/record_button"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/record_button"
             android:layout_width="550px"
             android:layout_height="wrap_content"
             android:layout_marginTop="10px"
-            android:background="#03A9F4"
+            android:background="@drawable/custom_edittext"
+            android:backgroundTint="@color/black"
             android:text="Record data"
             android:textColor="#FFFFFF"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView2"
-            app:layout_constraintBottom_toTopOf="@+id/live_button"/>
+            app:layout_constraintBottom_toTopOf="@+id/live_button"
+            style="@style/ButtonStyle"/>
 
 
         <Button
@@ -41,13 +115,15 @@
             android:layout_width="550px"
             android:layout_height="wrap_content"
             android:layout_marginTop="10px"
-            android:background="#03A9F4"
+            android:background="@drawable/custom_edittext"
+            android:backgroundTint="@color/black"
             android:text="Watch live processing"
             android:textColor="#FFFFFF"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/record_button"
-            app:layout_constraintBottom_toTopOf="@+id/ble_button"/>
+            app:layout_constraintBottom_toTopOf="@+id/ble_button"
+            style="@style/ButtonStyle"/>
 
 
         <Button
@@ -57,12 +133,14 @@
             android:text="Connect sensors"
             android:layout_marginTop="10px"
             android:layout_marginBottom="350px"
-            android:background="#03A9F4"
+            android:background="@drawable/custom_edittext"
+            android:backgroundTint="@color/black"
             android:textColor="#FFFFFF"
             app:layout_constraintTop_toBottomOf="@+id/live_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
+            style="@style/ButtonStyle"
             />
 
         <Button
@@ -72,13 +150,15 @@
             android:text="View History"
             android:layout_marginTop="150px"
             android:layout_marginBottom="200px"
-            android:background="#03A9F4"
+            android:background="@drawable/custom_edittext"
+            android:backgroundTint="@color/black"
             android:textColor="#FFFFFF"
             app:layout_constraintTop_toBottomOf="@+id/ble_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-        />
+            style="@style/ButtonStyle"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

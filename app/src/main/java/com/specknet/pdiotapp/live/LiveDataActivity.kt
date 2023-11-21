@@ -288,6 +288,30 @@ class LiveDataActivity : AppCompatActivity() {
 //
 //    }
 
+
+    fun argmax(floatBuffer: FloatBuffer): Int {
+        var maxIndex = 0
+        var maxValue = Float.MIN_VALUE
+
+        // Reset the position of the buffer to read from the beginning
+        floatBuffer.rewind()
+
+        for (i in 0 until floatBuffer.limit()) {
+            val currentValue = floatBuffer.get(i)
+            if (currentValue > maxValue) {
+                maxValue = currentValue
+                maxIndex = i
+            }
+            Log.i("ArgmaxCur", "Value: $currentValue")
+
+        }
+
+        Log.i("ArgmaxMax", "Value: $maxValue")
+
+        return maxIndex
+    }
+
+
     fun runModelWithResAvailableData() {
         // Make sure you have enough data
         if (dataSet_res_accel_x.entryCount < 50
@@ -351,20 +375,10 @@ class LiveDataActivity : AppCompatActivity() {
         val floatBuffer: FloatBuffer = outputBuffer.asFloatBuffer()
 
         // Initialize variables to keep track of the maximum value and corresponding index
-        var maxValue = 0.0f
-        var outputIndex = 0
-
-        // Iterate through the output buffer to find the maximum value and index
-        for (i in 0 until floatBuffer.limit()) {
-            val currentValue = floatBuffer.get(i)
-            if (currentValue > maxValue) {
-                maxValue = currentValue
-                outputIndex = i
-            }
-        }
+        var outputIndex = argmax(floatBuffer)
 
         // Log the result
-        Log.i("Model Result", "Class Index: $outputIndex, Confidence: $maxValue")
+        Log.i("Model Result", "Class Index: $outputIndex")
 
         val currentActivity = activities[outputIndex].toString()
 //        // Update the queue with the new activity

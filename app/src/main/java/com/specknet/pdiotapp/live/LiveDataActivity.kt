@@ -24,15 +24,18 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.specknet.pdiotapp.HistoryDB
+import com.specknet.pdiotapp.HistorySingleton
 import com.specknet.pdiotapp.R
 import com.specknet.pdiotapp.utils.Constants
 import com.specknet.pdiotapp.utils.RESpeckLiveData
 import com.specknet.pdiotapp.utils.ThingyLiveData
 import org.tensorflow.lite.Interpreter
-import java.nio.*
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.FloatBuffer
+import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
-import com.specknet.pdiotapp.HistoryDB
-import com.specknet.pdiotapp.HistorySingleton
 import java.util.LinkedList
 import java.util.Queue
 
@@ -288,7 +291,7 @@ class LiveDataActivity : AppCompatActivity() {
     fun runModelWithResAvailableData() {
         // Make sure you have enough data
         if (dataSet_res_accel_x.entryCount < 50
-            || dataSet_res_accel_x.entryCount % 10 != 0
+            || dataSet_res_accel_x.entryCount % 25 != 0
         ) {
             return
         }
@@ -333,10 +336,10 @@ class LiveDataActivity : AppCompatActivity() {
 //            Log.d("NormalizedGyroZ", normalizedGyroZ.toString())
         }
 
-        // Prepare the output buffer
-//        val outputBuffer: ByteBuffer = ByteBuffer.allocateDirect(37 * 4)
-        val outputBuffer: ByteBuffer = ByteBuffer.allocateDirect(11 * 4)
-//        outputBuffer.order(ByteOrder.nativeOrder())
+
+        // Allocate a ByteBuffer to hold the model's output
+        val outputBuffer: ByteBuffer = ByteBuffer.allocateDirect(11 * 4) // Adjust the size according to your model's output
+        outputBuffer.order(ByteOrder.nativeOrder()) // Ensure the buffer is in the correct byte order
 
         // Run inference using TensorFlow Lite
         tflite_res.run(inputBuffer, outputBuffer)
@@ -348,7 +351,7 @@ class LiveDataActivity : AppCompatActivity() {
         val floatBuffer: FloatBuffer = outputBuffer.asFloatBuffer()
 
         // Initialize variables to keep track of the maximum value and corresponding index
-        var maxValue = floatBuffer.get(0)
+        var maxValue = 0.0f
         var outputIndex = 0
 
         // Iterate through the output buffer to find the maximum value and index
@@ -360,18 +363,20 @@ class LiveDataActivity : AppCompatActivity() {
             }
         }
 
-        Log.i("Model", outputIndex.toString())
+        // Log the result
+        Log.i("Model Result", "Class Index: $outputIndex, Confidence: $maxValue")
+
         val currentActivity = activities[outputIndex].toString()
-        // Update the queue with the new activity
-        if (pastActivities.size >= 5) {
-            pastActivities.remove()
-        }
-        pastActivities.add(currentActivity)
-        val mostFrequentActivity = findMostFrequentActivity()
+//        // Update the queue with the new activity
+//        if (pastActivities.size >= 1) { // TODO add for smoothing
+//            pastActivities.remove()
+//        }
+//        pastActivities.add(currentActivity)
+//        val mostFrequentActivity = findMostFrequentActivity()
 
         val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
         val isRecording = sharedPreferences.getBoolean("recording", false)
-        findViewById<TextView>(R.id.currentAct).text = "Current Activity: $mostFrequentActivity"
+        findViewById<TextView>(R.id.currentAct).text = "Current Activity: $currentActivity"
         if (isRecording) {
             recordData(currentActivity)
         } else {

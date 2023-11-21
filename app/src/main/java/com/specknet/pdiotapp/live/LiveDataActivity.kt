@@ -587,3 +587,4 @@ class LiveDataActivity : AppCompatActivity() {
         looperThingy.quit()
     }
 }
+

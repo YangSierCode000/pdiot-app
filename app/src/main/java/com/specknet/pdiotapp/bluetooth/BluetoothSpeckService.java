@@ -247,15 +247,15 @@ public class BluetoothSpeckService extends Service {
         };
         registerReceiver(respeckIMUChangeReceiver, SpeckIntentFilters.INSTANCE.getRESpeckIMUIntentFilter());
 
-        // Provide a method for forcefully scanning for bluetooth devices.
-        // Useful when Bluetooth or GPS are dropped.
-        // TODO: test with other connected devices
-        registerReceiver(new BroadcastReceiver() {
-            public void onReceive(Context context, Intent intent) {
-                Log.i(TAG, "Received request to scan for Bluetooth devices...");
-                startServiceAndBluetoothScanning();
-            }
-        }, SpeckIntentFilters.INSTANCE.getBluetoothServiceScanForDevicesIntentFilter());
+//        // Provide a method for forcefully scanning for bluetooth devices.
+//        // Useful when Bluetooth or GPS are dropped.
+//        // TODO: test with other connected devices
+//        registerReceiver(new BroadcastReceiver() {
+//            public void onReceive(Context context, Intent intent) {
+//                Log.i(TAG, "Received request to scan for Bluetooth devices...");
+//                startServiceAndBluetoothScanning();
+//            }
+//        }, SpeckIntentFilters.INSTANCE.getBluetoothServiceScanForDevicesIntentFilter());
 
     }
 

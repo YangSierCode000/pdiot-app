@@ -80,16 +80,12 @@ class LiveDataActivity : AppCompatActivity() {
     val activities = mapOf(
         0 to "ascending stairs",
         1 to "descending stairs",
-        2 to "lying down on back",
-        3 to "lying down on left",
-        4 to "lying down on right",
-        5 to "lying down on stomach",
-        6 to "miscellaneous movements",
-        7 to "normal walking",
-        8 to "running",
-        9 to "shuffle walking",
-        10 to "sitting/standing"
+        2 to "normal walking",
+        3 to "running",
+        4 to "shuffle walking",
+        5 to "stationary or miscellaneous movements"
     )
+
     private val pastActivities: Queue<String> = LinkedList()
 
 
@@ -206,8 +202,7 @@ class LiveDataActivity : AppCompatActivity() {
 //        val options_thingy = Interpreter.Options()
 //        tflite_thingy = Interpreter(tfliteModel_thingy, options_thingy)
 
-        val modelPath_res = "model_respeck_accl_only_no_norm_task_1_50.tflite"
-//        val modelPath_res = "model_respeck_accl_gyro_norm_task_5_50.tflite"
+        val modelPath_res = "model_respeck_accl_only_no_norm_task_1_100.tflite"
         val assetFileDescriptor_res: AssetFileDescriptor = assets.openFd(modelPath_res)
         val fileInputStream_res = assetFileDescriptor_res.createInputStream()
         val fileChannel_res: FileChannel = fileInputStream_res.channel
@@ -288,9 +283,40 @@ class LiveDataActivity : AppCompatActivity() {
 //
 //    }
 
+
+    fun argmax(floatBuffer: FloatBuffer): Int {
+        var maxIndex = 0
+        var maxValue = Float.MIN_VALUE
+        var count = 0
+
+        // Reset the position of the buffer to read from the beginning
+        floatBuffer.rewind()
+
+        for (i in 0 until floatBuffer.limit()) {
+            val currentValue = floatBuffer.get(i)
+            if (currentValue > maxValue) {
+                maxValue = currentValue
+                maxIndex = i
+            }
+            if (maxValue > 0.9) {
+                count += 1
+            }
+            Log.i("ArgmaxCur", "Value: $currentValue")
+
+        }
+        if (count > 1){
+            maxIndex = 5
+        }
+
+        Log.i("ArgmaxMax", "Value: $maxValue")
+
+        return maxIndex
+    }
+
+
     fun runModelWithResAvailableData() {
         // Make sure you have enough data
-        if (dataSet_res_accel_x.entryCount < 50
+        if (dataSet_res_accel_x.entryCount < 100
             || dataSet_res_accel_x.entryCount % 25 != 0
         ) {
             return
@@ -305,12 +331,12 @@ class LiveDataActivity : AppCompatActivity() {
         val entries_res_gyro_z = dataSet_res_gyro_z.values
 
         // Create a ByteBuffer to hold the float values for input to the TFLite model
-        val inputBuffer: ByteBuffer = ByteBuffer.allocateDirect(4 * 50 * 3)
-//        val inputBuffer: ByteBuffer = ByteBuffer.allocateDirect(4 * 50 * 6)
+        val inputBuffer: ByteBuffer = ByteBuffer.allocateDirect(4 * 100 * 3)
+//        val inputBuffer: ByteBuffer = ByteBuffer.allocateDirect(4 * 100 * 6)
 
         // Populate the ByteBuffer, where y is the reading and x is the time
-        val startIndex = dataSet_res_accel_x.entryCount - 50
-        for (i in startIndex until startIndex + 50) {
+        val startIndex = dataSet_res_accel_x.entryCount - 100
+        for (i in startIndex until startIndex + 100) {
             inputBuffer.putFloat(entries_res_accel_x[i].y)
             inputBuffer.putFloat(entries_res_accel_y[i].y)
             inputBuffer.putFloat(entries_res_accel_z[i].y)
@@ -338,7 +364,7 @@ class LiveDataActivity : AppCompatActivity() {
 
 
         // Allocate a ByteBuffer to hold the model's output
-        val outputBuffer: ByteBuffer = ByteBuffer.allocateDirect(11 * 4) // Adjust the size according to your model's output
+        val outputBuffer: ByteBuffer = ByteBuffer.allocateDirect(5 * 4) // Adjust the size according to your model's output
         outputBuffer.order(ByteOrder.nativeOrder()) // Ensure the buffer is in the correct byte order
 
         // Run inference using TensorFlow Lite
@@ -351,20 +377,10 @@ class LiveDataActivity : AppCompatActivity() {
         val floatBuffer: FloatBuffer = outputBuffer.asFloatBuffer()
 
         // Initialize variables to keep track of the maximum value and corresponding index
-        var maxValue = 0.0f
-        var outputIndex = 0
-
-        // Iterate through the output buffer to find the maximum value and index
-        for (i in 0 until floatBuffer.limit()) {
-            val currentValue = floatBuffer.get(i)
-            if (currentValue > maxValue) {
-                maxValue = currentValue
-                outputIndex = i
-            }
-        }
+        var outputIndex = argmax(floatBuffer)
 
         // Log the result
-        Log.i("Model Result", "Class Index: $outputIndex, Confidence: $maxValue")
+        Log.i("Model Result", "Class Index: $outputIndex")
 
         val currentActivity = activities[outputIndex].toString()
 //        // Update the queue with the new activity
@@ -571,3 +587,4 @@ class LiveDataActivity : AppCompatActivity() {
         looperThingy.quit()
     }
 }
+

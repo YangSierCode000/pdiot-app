@@ -71,10 +71,12 @@ class ViewActivity : AppCompatActivity() {
             val row = TableRow(this)
 
             val activityTextView = TextView(this)
-            activityTextView.text = activity
+            activityTextView.text = "$activity: "
 
             val durationTextView = TextView(this)
-            durationTextView.text = duration.toString()
+            val durationText = duration.toString()
+            durationTextView.text = "$durationText seconds"
+            // should display "running: 20 seconds"
 
             row.addView(activityTextView)
             row.addView(durationTextView)

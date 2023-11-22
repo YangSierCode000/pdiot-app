@@ -467,16 +467,16 @@ class LiveDataActivity : AppCompatActivity() {
 //        pastActivities.add(currentActivity)
 //        val mostFrequentActivity = findMostFrequentActivity()
 
-        val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
-        val isRecording = sharedPreferences.getBoolean("recording", false)
+//        val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
+//        val isRecording = sharedPreferences.getBoolean("recording", false)
         runOnUiThread{
             textLabel.text = "Current Activity: $currentActivity"
         }
-        if (isRecording) {
-            recordData(currentActivity)
-        } else {
-            // don't do anything
-        }
+//        if (isRecording) {
+        recordData(currentActivity)
+//        } else {
+//            // don't do anything
+//        }
     }
 
     // Function to find the most frequent activity
@@ -490,12 +490,11 @@ class LiveDataActivity : AppCompatActivity() {
     }
 
 
-    fun recordData(activity: String) {
+    fun recordData(classifiedLabel: String) {
         val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
-        val classifiedLabel = "ascending stairs normal"
         val username = sharedPreferences.getString("username", "").toString()
         val currentDate = System.currentTimeMillis()
-        val durationInSeconds = 4L
+        val durationInSeconds = 1L
 
         val existingActivityData = historyDB.getActivityData(username, currentDate, currentDate)
 

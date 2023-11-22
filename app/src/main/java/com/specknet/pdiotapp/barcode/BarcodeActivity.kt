@@ -1,16 +1,17 @@
 package com.specknet.pdiotapp.barcode
 
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.util.SparseArray
 import android.view.SurfaceHolder
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.util.isNotEmpty
@@ -19,14 +20,14 @@ import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import com.specknet.pdiotapp.R
-import kotlinx.android.synthetic.main.activity_barcode.*
-import java.lang.Exception
+import com.specknet.pdiotapp.databinding.ActivityBarcodeBinding
 
 class BarcodeActivity : AppCompatActivity() {
 
     private val requestCodeCameraPermission = 1001
     private lateinit var cameraSource: CameraSource
     private lateinit var detector: BarcodeDetector
+    private lateinit var binding: ActivityBarcodeBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +49,7 @@ class BarcodeActivity : AppCompatActivity() {
         cameraSource = CameraSource.Builder(this, detector)
             .setAutoFocusEnabled(true)
             .build()
-        cameraSurfaceView.holder.addCallback(surfaceCallBack)
+        binding.cameraSurfaceView.holder.addCallback(surfaceCallBack)
         detector.setProcessor(processor)
     }
 
@@ -107,7 +108,7 @@ class BarcodeActivity : AppCompatActivity() {
                 val code = qrCodes.valueAt(0)
 
                 runOnUiThread {
-                    textScanResult.text = code.displayValue
+                    binding.textScanResult.text = code.displayValue
                 }
 
                 val returnIntent = Intent()
@@ -116,10 +117,10 @@ class BarcodeActivity : AppCompatActivity() {
                 finish()
 
             } else {
-                Log.i("Barcode", "Don't see nothin")
+                Log.i("Barcode", "Don't see nothing")
 
                 runOnUiThread {
-                    textScanResult.text = ""
+                    binding.textScanResult.text = ""
                 }
 
             }

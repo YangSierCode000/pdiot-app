@@ -1,12 +1,9 @@
 package com.specknet.pdiotapp
 
-import com.specknet.pdiotapp.user.*
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -14,15 +11,20 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.analytics
 import com.specknet.pdiotapp.bluetooth.BluetoothSpeckService
 import com.specknet.pdiotapp.bluetooth.ConnectingActivity
+import com.specknet.pdiotapp.databinding.ActivityMainBinding
 import com.specknet.pdiotapp.live.LiveDataActivity
 import com.specknet.pdiotapp.onboarding.OnBoardingActivity
+import com.specknet.pdiotapp.user.HistoryActivity
 import com.specknet.pdiotapp.utils.Constants
 import com.specknet.pdiotapp.utils.Utils
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,6 +33,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var pairingButton: Button
     lateinit var recordButton: Button
     lateinit var historyButton: Button
+    private lateinit var binding: ActivityMainBinding
+
 
     // permissions
     lateinit var permissionAlertDialog: AlertDialog.Builder
@@ -41,18 +45,21 @@ class MainActivity : AppCompatActivity() {
     var cameraPermissionGranted = false
     var readStoragePermissionGranted = false
     var writeStoragePermissionGranted = false
-
+    private lateinit var analytics: FirebaseAnalytics
     // broadcast receiver
     val filter = IntentFilter()
 
     var isUserFirstTime = false
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        analytics = Firebase.analytics
 
         // check whether the onboarding screen should be shown
-        val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
         if (sharedPreferences.contains(Constants.PREF_USER_FIRST_TIME)) {
             isUserFirstTime = false
         }
@@ -62,13 +69,7 @@ class MainActivity : AppCompatActivity() {
             val introIntent = Intent(this, OnBoardingActivity::class.java)
             startActivity(introIntent)
         }
-        // Check if the user is logged in
-        if (!isLoggedIn()) {
-            // User is not logged in, redirect to LoginActivity
-            val intent = Intent(this, com.specknet.pdiotapp.user.LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-            startActivity(intent)
-        }
+
         liveProcessingButton = findViewById(R.id.live_button)
         pairingButton = findViewById(R.id.ble_button)
         recordButton = findViewById(R.id.record_button)
@@ -86,7 +87,16 @@ class MainActivity : AppCompatActivity() {
         filter.addAction(Constants.ACTION_RESPECK_CONNECTED)
         filter.addAction(Constants.ACTION_RESPECK_DISCONNECTED)
 
+        // Check if the user is logged in
+        if (!isLoggedIn()) {
+            // User is not logged in, redirect to LoginActivity
+            val intent = Intent(this, com.specknet.pdiotapp.user.LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            startActivity(intent)
+        }
+
     }
+
 
     fun setupClickListeners() {
         liveProcessingButton.setOnClickListener {
@@ -104,7 +114,7 @@ class MainActivity : AppCompatActivity() {
             // Check if the user is logged in
             if (!isLoggedIn()) {
                 // User is not logged in, redirect to LoginActivity
-                val intent = Intent(this, LoginActivity::class.java)
+                val intent = Intent(this, com.specknet.pdiotapp.user.LoginActivity::class.java)
                 startActivity(intent)
             }
             val intent = Intent(this, ConnectingActivity::class.java)
@@ -194,7 +204,7 @@ class MainActivity : AppCompatActivity() {
         Log.i("debug","isServiceRunning = " + isServiceRunning)
 
         // check sharedPreferences for an existing Respeck id
-        val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
         if (sharedPreferences.contains(Constants.RESPECK_MAC_ADDRESS_PREF)) {
             Log.i("sharedpref", "Already saw a respeckID, starting service and attempting to reconnect")
 
@@ -247,18 +257,18 @@ class MainActivity : AppCompatActivity() {
         // show a general message if we need multiple permissions
         if (numberOfPermissionsUngranted > 1) {
             val generalSnackbar = Snackbar
-                .make(coordinatorLayout, "Several permissions are needed for correct app functioning", Snackbar.LENGTH_LONG)
+                .make(binding.coordinatorLayout, "Several permissions are needed for correct app functioning", Snackbar.LENGTH_LONG)
                 .setAction("SETTINGS") {
                     startActivity(Intent(Settings.ACTION_SETTINGS))
                 }
                 .show()
         }
         else if(numberOfPermissionsUngranted == 1) {
-            var snackbar: Snackbar = Snackbar.make(coordinatorLayout, "", Snackbar.LENGTH_LONG)
+            var snackbar: Snackbar = Snackbar.make(binding.coordinatorLayout, "", Snackbar.LENGTH_LONG)
             if (!locationPermissionGranted) {
                 snackbar = Snackbar
                     .make(
-                        coordinatorLayout,
+                        binding.coordinatorLayout,
                         "Location permission needed for Bluetooth to work.",
                         Snackbar.LENGTH_LONG
                     )
@@ -267,7 +277,7 @@ class MainActivity : AppCompatActivity() {
             if(!cameraPermissionGranted) {
                 snackbar = Snackbar
                     .make(
-                        coordinatorLayout,
+                        binding.coordinatorLayout,
                         "Camera permission needed for QR code scanning to work.",
                         Snackbar.LENGTH_LONG
                     )
@@ -276,7 +286,7 @@ class MainActivity : AppCompatActivity() {
             if(!readStoragePermissionGranted || !writeStoragePermissionGranted) {
                 snackbar = Snackbar
                     .make(
-                        coordinatorLayout,
+                        binding.coordinatorLayout,
                         "Storage permission needed to record sensor.",
                         Snackbar.LENGTH_LONG
                     )

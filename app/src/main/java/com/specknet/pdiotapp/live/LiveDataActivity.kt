@@ -45,7 +45,7 @@ class LiveDataActivity : AppCompatActivity() {
     val inputBufferRes: FloatBuffer = FloatBuffer.allocate(50 * 6)
     val outputBufferRes: FloatBuffer = FloatBuffer.allocate(3) // Adjust the size according to your model's output
 
-    val inputBufferThingy: FloatBuffer = FloatBuffer.allocate(50 * 6)
+    val inputBufferThingy: FloatBuffer = FloatBuffer.allocate(100 * 6)
     val outputBufferThingy: FloatBuffer = FloatBuffer.allocate(11) // Adjust the size according to your model's output
 
 
@@ -211,7 +211,8 @@ class LiveDataActivity : AppCompatActivity() {
         this.registerReceiver(thingyLiveUpdateReceiver, filterTestThingy, null, handlerThingy)
 
         // Load Thingy TFLite model
-        val modelPath_thingy = "model_thingy_accl_gyro_norm_task_51_50.tflite"
+//        val modelPath_thingy = "model_thingy_accl_gyro_norm_task_51_50.tflite"
+        val modelPath_thingy = "model_thingy_accl_gyro_norm_task_51_100.tflite"
         val assetFileDescriptor_thingy: AssetFileDescriptor = assets.openFd(modelPath_thingy)
         val fileInputStream_thingy = assetFileDescriptor_thingy.createInputStream()
         val fileChannel_thingy: FileChannel = fileInputStream_thingy.channel
@@ -245,7 +246,7 @@ class LiveDataActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     fun runModelWithThingyAvailableData() {
         // Make sure you have enough data
-        if (dataSet_thingy_accel_x.entryCount < 50 // Thingy use 50
+        if (dataSet_thingy_accel_x.entryCount < 100 // Thingy use 50
             || dataSet_thingy_accel_x.entryCount % 25 != 0
         ) {
             return
@@ -261,8 +262,8 @@ class LiveDataActivity : AppCompatActivity() {
 
 
         // Populate the ByteBuffer, where y is the reading and x is the time
-        val startIndex = dataSet_thingy_accel_x.entryCount - 50
-        for (i in startIndex until startIndex + 50) {
+        val startIndex = dataSet_thingy_accel_x.entryCount - 100
+        for (i in startIndex until startIndex + 100) {
             inputBufferThingy.put(entries_thingy_accel_x[i].y)
             inputBufferThingy.put(entries_thingy_accel_y[i].y)
             inputBufferThingy.put(entries_thingy_accel_z[i].y)

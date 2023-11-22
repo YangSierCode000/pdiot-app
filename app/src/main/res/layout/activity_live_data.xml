@@ -10,20 +10,29 @@
         android:id="@+id/currentActThingy"
         android:layout_width="180dp"
         android:layout_height="50dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="22dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="25dp"
         android:text="Current Activity: "
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="339dp" />
+        app:layout_constraintBottom_toTopOf="@+id/thingy_graphs"
+        app:layout_constraintEnd_toStartOf="@+id/currentActRes"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/respeck_graphs"
+        tools:ignore="MissingConstraints" />
 
     <TextView
         android:id="@+id/currentActRes"
         android:layout_width="180dp"
         android:layout_height="50dp"
+        android:layout_marginTop="22dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="25dp"
         android:text="Current Symptoms: "
-        app:layout_constraintBottom_toBottomOf="@+id/currentActThingy"
-        app:layout_constraintTop_toTopOf="@+id/currentActThingy"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="216dp" />
+        app:layout_constraintBottom_toTopOf="@+id/thingy_graphs"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/respeck_graphs"
+        tools:ignore="MissingConstraints" />
 
     <LinearLayout
         android:id="@+id/respeck_graphs"

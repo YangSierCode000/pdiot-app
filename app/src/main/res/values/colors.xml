@@ -53,8 +53,6 @@
     <color name="cyan_50">#E0F7FA</color>
     <color name="amber_50">#FFF8E1</color>
     <color name="purple_50">#F3E5F5</color>
-    <color name="white">#FFFFFF</color>
     <color name="teal_200">#008080</color>
     <color name="teal_700">#00796B</color>
-    <color name="black">#000000</color>
 </resources>

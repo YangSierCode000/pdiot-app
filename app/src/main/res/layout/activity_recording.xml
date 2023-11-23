@@ -175,6 +175,7 @@
             android:layout_height="wrap_content"
             android:text="Start recording"
             android:id="@+id/start_recording_button"
+            style="@style/ButtonStyle2"
             android:layout_marginBottom="10dp"/>
 
         <Button
@@ -183,6 +184,7 @@
             android:layout_height="wrap_content"
             android:text="Cancel recording"
             android:id="@+id/cancel_recording_button"
+            style="@style/ButtonStyle4"
             android:layout_marginBottom="10dp"/>
 
         <Button
@@ -191,6 +193,7 @@
             android:layout_height="wrap_content"
             android:text="Stop recording"
             android:id="@+id/stop_recording_button"
+            style="@style/ButtonStyle3"
             android:layout_marginBottom="10dp"/>
 
     </LinearLayout>

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "505985211230",
+    "project_id": "pdiotapp-b81f4",
+    "storage_bucket": "pdiotapp-b81f4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:505985211230:android:f51dcd28b0518befa10dcf",
+        "android_client_info": {
+          "package_name": "com.specknet.pdiotapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDgaA1V7-nmUQXo9UYAE-LgWcdPte9nvZg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,177 @@
+Index: app/src/main/res/layout/activity_signup.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<androidx.constraintlayout.widget.ConstraintLayout\n    xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:id=\"@+id/signupConstraintLayout\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n    tools:context=\".user.SignupActivity\">\n\n    <RelativeLayout\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"match_parent\"\n        android:paddingLeft=\"16dp\"\n        android:paddingTop=\"16dp\"\n        android:paddingRight=\"16dp\"\n        android:paddingBottom=\"16dp\"\n        tools:context=\".user.SignupActivity\">\n\n        <EditText\n            android:id=\"@+id/etUsername\"\n            android:layout_width=\"match_parent\"\n            android:layout_height=\"wrap_content\"\n            android:hint=\"Username\"\n            android:inputType=\"text\" android:minHeight=\"48dp\"/>\n\n        <EditText\n            android:id=\"@+id/etPassword\"\n            android:layout_width=\"match_parent\"\n            android:layout_height=\"wrap_content\"\n            android:layout_below=\"@id/etUsername\"\n            android:layout_marginTop=\"8dp\"\n            android:hint=\"Password\"\n            android:inputType=\"textPassword\" android:minHeight=\"48dp\"/>\n\n        <Button\n            android:id=\"@+id/btnSignup\"\n            android:layout_width=\"match_parent\"\n            android:layout_height=\"wrap_content\"\n            android:layout_below=\"@id/etPassword\"\n            android:layout_marginTop=\"16dp\"\n            android:text=\"Signup\" />\n\n        <TextView\n            android:id=\"@+id/tvLogin\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_below=\"@id/btnSignup\"\n            android:layout_marginTop=\"16dp\"\n            android:text=\"Already have an account?\"\n            android:textColor=\"@android:color/holo_blue_dark\"/>\n\n    </RelativeLayout>\n\n</androidx.constraintlayout.widget.ConstraintLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/res/layout/activity_signup.xml b/app/src/main/res/layout/activity_signup.xml
+--- a/app/src/main/res/layout/activity_signup.xml	(revision 411f5be44a580babcea7bf0bba6a441f27ce5fe4)
++++ b/app/src/main/res/layout/activity_signup.xml	(date 1700763512251)
+@@ -3,53 +3,126 @@
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     xmlns:tools="http://schemas.android.com/tools"
+-    android:id="@+id/signupConstraintLayout"
++    android:id="@+id/loginConstraintLayout"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+-    tools:context=".user.SignupActivity">
++    android:background="@drawable/purple_gradient"
++    android:gravity="center"
++    tools:context=".user.LoginActivity">
+ 
+-    <RelativeLayout
++    <androidx.cardview.widget.CardView
++        android:id="@+id/cardView"
+         android:layout_width="match_parent"
+-        android:layout_height="match_parent"
+-        android:paddingLeft="16dp"
+-        android:paddingTop="16dp"
+-        android:paddingRight="16dp"
+-        android:paddingBottom="16dp"
+-        tools:context=".user.SignupActivity">
++        android:layout_height="wrap_content"
++        android:layout_margin="30dp"
++        android:background="@drawable/custom_edittext"
++        app:cardCornerRadius="30dp"
++        app:cardElevation="20dp"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintTop_toTopOf="parent"
++        tools:layout_editor_absoluteX="30dp">
+ 
+-        <EditText
+-            android:id="@+id/etUsername"
++        <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+-            android:hint="Username"
+-            android:inputType="text" android:minHeight="48dp"/>
++            android:layout_gravity="center_horizontal"
++            android:background="@color/white"
++            android:backgroundTint="@color/white"
++            android:orientation="vertical"
++            android:padding="24dp"
++            app:layout_constraintBottom_toBottomOf="parent"
++            app:layout_constraintTop_toTopOf="parent"
++            tools:layout_editor_absoluteX="31dp">
++
++            <TextView
++                android:id="@+id/signUpText"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:text="Sign Up"
++                android:textAlignment="center"
++                android:textColor="@color/purple"
++                android:textSize="36sp"
++                android:textStyle="bold" />
++
++            <EditText
++                android:id="@+id/etUsername3"
++                android:layout_width="match_parent"
++                android:layout_height="50dp"
++                android:layout_marginTop="40dp"
++                android:background="@drawable/custom_edittext"
++                android:drawableLeft="@drawable/baseline_person_24"
++                android:drawablePadding="8dp"
++                android:gravity="left|center_vertical"
++                android:hint="Username"
++                android:padding="8dp"
++                android:textColor="@color/black"
++                android:textColorHighlight="@color/cardview_dark_background"
++                android:textSize="18dp" />
+ 
+-        <EditText
+-            android:id="@+id/etPassword"
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_below="@id/etUsername"
+-            android:layout_marginTop="8dp"
+-            android:hint="Password"
+-            android:inputType="textPassword" android:minHeight="48dp"/>
++            <EditText
++                android:id="@+id/etPassword2"
++                android:layout_width="match_parent"
++                android:layout_height="50dp"
++                android:layout_marginTop="20dp"
++                android:background="@drawable/custom_edittext"
++                android:drawableLeft="@drawable/baseline_lock_24"
++                android:drawablePadding="8dp"
++                android:gravity="left|center_vertical"
++                android:hint="Password"
++                android:inputType="textPassword"
++                android:padding="8dp"
++                android:textColor="@color/black"
++                android:textColorHighlight="@color/cardview_dark_background"
++                android:textSize="18dp" />
++
++            <EditText
++                android:id="@+id/etPassword3"
++                android:layout_width="match_parent"
++                android:layout_height="50dp"
++                android:layout_marginTop="20dp"
++                android:background="@drawable/custom_edittext"
++                android:drawableLeft="@drawable/baseline_lock_24"
++                android:drawablePadding="8dp"
++                android:gravity="left|center_vertical"
++                android:hint=" Confirm Password"
++                android:inputType="textPassword"
++                android:padding="8dp"
++                android:textColor="@color/black"
++                android:textColorHighlight="@color/cardview_dark_background"
++                android:textSize="18dp" />
++
+ 
+-        <Button
+-            android:id="@+id/btnSignup"
+-            android:layout_width="match_parent"
+-            android:layout_height="wrap_content"
+-            android:layout_below="@id/etPassword"
+-            android:layout_marginTop="16dp"
+-            android:text="Signup" />
++            <Button
++                android:id="@+id/btnSignUp"
++                android:layout_width="match_parent"
++                android:layout_height="60dp"
++                android:layout_marginTop="30dp"
++                android:background="@drawable/custom_edittext"
++                android:backgroundTint="@color/purple"
++                android:gravity="center"
++                android:text="Sign Up"
++                android:textAlignment="center"
++                android:textSize="18sp"
++                android:textStyle="bold" />
++
++
++        </LinearLayout>
++    </androidx.cardview.widget.CardView>
+ 
+-        <TextView
+-            android:id="@+id/tvLogin"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:layout_below="@id/btnSignup"
+-            android:layout_marginTop="16dp"
+-            android:text="Already have an account?"
+-            android:textColor="@android:color/holo_blue_dark"/>
+-
+-    </RelativeLayout>
+-
++    <TextView
++        android:id="@+id/tvLogin"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginStart="48dp"
++        android:layout_marginTop="28dp"
++        android:layout_marginEnd="221dp"
++        android:layout_marginBottom="137dp"
++        android:text="Have an account? Login here"
++        android:textColor="@color/white"
++        app:layout_constraintBottom_toBottomOf="parent"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.0"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/cardView"
++        app:layout_constraintVertical_bias="1.0" />
+ </androidx.constraintlayout.widget.ConstraintLayout>
+\ No newline at end of file

@@ -22,10 +22,10 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         auth = Firebase.auth
-        val etUsername2 = findViewById<EditText>(R.id.username)
-        val etPassword2 = findViewById<EditText>(R.id.password)
-        val btnLogin = findViewById<Button>(R.id.loginButton)
-        val tvSignUp = findViewById<TextView>(R.id.tvSignup)
+        val etUsername2 = findViewById<EditText>(R.id.etUsername2)
+        val etPassword2 = findViewById<EditText>(R.id.etPassword2)
+        val btnLogin = findViewById<Button>(R.id.btnLogin)
+        val tvSignUp = findViewById<TextView>(R.id.tvSignUp)
 
         //val currentUser = auth.currentUser
         //if (currentUser != null) {

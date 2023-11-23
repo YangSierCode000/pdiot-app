@@ -14,9 +14,9 @@ class SignupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
 
-        val etUsername = findViewById<EditText>(R.id.username)
-        val etPassword = findViewById<EditText>(R.id.password)
-        val btnSignup = findViewById<Button>(R.id.signupButton)
+        val etUsername = findViewById<EditText>(R.id.etUsername3)
+        val etPassword = findViewById<EditText>(R.id.etPassword3)
+        val btnSignup = findViewById<Button>(R.id.btnSignUp)
         val tvLogin = findViewById<TextView>(R.id.tvLogin)
 
         btnSignup.setOnClickListener {

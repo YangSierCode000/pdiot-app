@@ -32,20 +32,21 @@ import com.specknet.pdiotapp.utils.Constants
 import com.specknet.pdiotapp.utils.RESpeckLiveData
 import com.specknet.pdiotapp.utils.ThingyLiveData
 import org.tensorflow.lite.Interpreter
-import java.nio.ByteBuffer
-import java.nio.ByteOrder
 import java.nio.FloatBuffer
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 import java.util.LinkedList
 import java.util.Queue
-import kotlin.math.sqrt
 
 
 class LiveDataActivity : AppCompatActivity() {
 
-    val inputBuffer: FloatBuffer = FloatBuffer.allocate(100 * 6)
-    val outputBuffer: FloatBuffer = FloatBuffer.allocate(10) // Adjust the size according to your model's output
+    val inputBuffer: FloatBuffer = FloatBuffer.allocate(50 * 6)
+
+    val outputBufferResA: FloatBuffer = FloatBuffer.allocate(6) // Adjust the size according to your model's output
+    val outputBufferResS: FloatBuffer = FloatBuffer.allocate(4) // Adjust the size according to your model's output
+    val outputBufferThingy: FloatBuffer = FloatBuffer.allocate(6) // Adjust the size according to your model's output
+
 
     // global graph variables
     lateinit var dataSet_res_accel_x: LineDataSet
@@ -82,19 +83,36 @@ class LiveDataActivity : AppCompatActivity() {
     val filterTestRespeck = IntentFilter(Constants.ACTION_RESPECK_LIVE_BROADCAST)
     val filterTestThingy = IntentFilter(Constants.ACTION_THINGY_BROADCAST)
     private lateinit var tflite_thingy: Interpreter
-    private lateinit var tflite_res: Interpreter
-    val activities = mapOf(
-        3 to "ascending stairs",
-        2 to "descending stairs",
-        1 to "lying down on back",
-        0 to "lying down on left",
-        5 to "lying down on right",
-        7 to "lying down on stomach",
-        6 to "normal walking",
-        4 to "running",
-        9 to "shuffle walking",
-        8 to "sitting/standing"
+    private lateinit var tflite_res_a: Interpreter
+    private lateinit var tflite_res_s: Interpreter
+
+    val activitiesRes = mapOf(
+        0 to "lying down on back",
+        1 to "lying down on left",
+        2 to "lying down on right",
+        3 to "lying down on stomach",
+        4 to "other",
+        5 to "sitting/standing"
     )
+
+    val activitiesThingy = mapOf(
+        0 to "ascending stairs",
+        1 to "descending stairs",
+        2 to "miscellaneous movements",
+        3 to "normal walking",
+        4 to "running",
+        5 to "shuffle walking"
+    )
+
+    val symptomsRes = mapOf(
+        0 to "coughing",
+        1 to "hyperventilating",
+        2 to "normal",
+        3 to "other"
+    )
+
+
+
 
     private val pastActivities: Queue<String> = LinkedList()
 
@@ -142,8 +160,6 @@ class LiveDataActivity : AppCompatActivity() {
                     dataSet_res_gyro_x.addEntry(Entry(time, gyro_x))
                     dataSet_res_gyro_y.addEntry(Entry(time, gyro_y))
                     dataSet_res_gyro_z.addEntry(Entry(time, gyro_z))
-
-                    runModelWithResAvailableData()
                 }
             }
         }
@@ -184,11 +200,19 @@ class LiveDataActivity : AppCompatActivity() {
                     dataSet_thingy_gyro_x.addEntry(Entry(time, gyro_x))
                     dataSet_thingy_gyro_y.addEntry(Entry(time, gyro_y))
                     dataSet_thingy_gyro_z.addEntry(Entry(time, gyro_z))
-
-//                    runModelWithThingyAvailableData() // TODO waiting thingy model
                 }
             }
         }
+
+        // Creating a new thread
+        val thread = Thread {
+            while (true){
+                runModelWithResAvailableData()
+            }
+        }
+
+        // Start the thread
+        thread.start()
 
         // register receiver on another thread
         val handlerThreadThingy = HandlerThread("bgThreadThingyLive")
@@ -197,182 +221,123 @@ class LiveDataActivity : AppCompatActivity() {
         val handlerThingy = Handler(looperThingy)
         this.registerReceiver(thingyLiveUpdateReceiver, filterTestThingy, null, handlerThingy)
 
-//        // Load Thingy TFLite model
-//        val modelPath_thingy = "model_thingy_accl_gyro_no_norm_25.tflite" // TODO thingy model file name
-//        val assetFileDescriptor_thingy: AssetFileDescriptor = assets.openFd(modelPath_thingy)
-//        val fileInputStream_thingy = assetFileDescriptor_thingy.createInputStream()
-//        val fileChannel_thingy: FileChannel = fileInputStream_thingy.channel
-//        val startOffset_thingy: Long = assetFileDescriptor_thingy.startOffset
-//        val declaredLength_thingy: Long = assetFileDescriptor_thingy.declaredLength
-//        val tfliteModel_thingy: MappedByteBuffer = fileChannel_thingy.map(
-//            FileChannel.MapMode.READ_ONLY,
-//            startOffset_thingy,
-//            declaredLength_thingy
-//        )
-//
-//        val options_thingy = Interpreter.Options()
-//        tflite_thingy = Interpreter(tfliteModel_thingy, options_thingy)
-
-//        val modelPath_res = "model_respeck_accl_only_no_norm_task_1_100.tflite"
-        val modelPath_res = "model_respeck_accl_gyro_norm_task_5_100.tflite"
-        val assetFileDescriptor_res: AssetFileDescriptor = assets.openFd(modelPath_res)
-        val fileInputStream_res = assetFileDescriptor_res.createInputStream()
-        val fileChannel_res: FileChannel = fileInputStream_res.channel
-        val startOffset_res: Long = assetFileDescriptor_res.startOffset
-        val declaredLength_res: Long = assetFileDescriptor_res.declaredLength
-        val tfliteModel_res: MappedByteBuffer = fileChannel_res.map(
+        // Load Thingy TFLite model
+        val modelPath_thingy = "tb50a2.tflite"
+        val assetFileDescriptor_thingy: AssetFileDescriptor = assets.openFd(modelPath_thingy)
+        val fileInputStream_thingy = assetFileDescriptor_thingy.createInputStream()
+        val fileChannel_thingy: FileChannel = fileInputStream_thingy.channel
+        val startOffset_thingy: Long = assetFileDescriptor_thingy.startOffset
+        val declaredLength_thingy: Long = assetFileDescriptor_thingy.declaredLength
+        val tfliteModel_thingy: MappedByteBuffer = fileChannel_thingy.map(
             FileChannel.MapMode.READ_ONLY,
-            startOffset_res,
-            declaredLength_res
+            startOffset_thingy,
+            declaredLength_thingy
         )
 
-        val options_res = Interpreter.Options()
-        tflite_res = Interpreter(tfliteModel_res, options_res)
+        val options_thingy = Interpreter.Options()
+        tflite_thingy = Interpreter(tfliteModel_thingy, options_thingy)
+
+        val modelPath_res_a = "rb50a1.tflite"
+        val assetFileDescriptor_res_a: AssetFileDescriptor = assets.openFd(modelPath_res_a)
+        val fileInputStream_res_a = assetFileDescriptor_res_a.createInputStream()
+        val fileChannel_res_a: FileChannel = fileInputStream_res_a.channel
+        val startOffset_res_a: Long = assetFileDescriptor_res_a.startOffset
+        val declaredLength_res_a: Long = assetFileDescriptor_res_a.declaredLength
+        val tfliteModel_res_a: MappedByteBuffer = fileChannel_res_a.map(
+            FileChannel.MapMode.READ_ONLY,
+            startOffset_res_a,
+            declaredLength_res_a
+        )
+
+        val options_res_a = Interpreter.Options()
+        tflite_res_a = Interpreter(tfliteModel_res_a, options_res_a)
+
+        val modelPath_res_s = "rb50s.tflite"
+        val assetFileDescriptor_res_s: AssetFileDescriptor = assets.openFd(modelPath_res_s)
+        val fileInputStream_res_s = assetFileDescriptor_res_s.createInputStream()
+        val fileChannel_res_s: FileChannel = fileInputStream_res_s.channel
+        val startOffset_res_s: Long = assetFileDescriptor_res_s.startOffset
+        val declaredLength_res_s: Long = assetFileDescriptor_res_s.declaredLength
+        val tfliteModel_res_s: MappedByteBuffer = fileChannel_res_s.map(
+            FileChannel.MapMode.READ_ONLY,
+            startOffset_res_s,
+            declaredLength_res_s
+        )
+
+        val options_res_s = Interpreter.Options()
+        tflite_res_s = Interpreter(tfliteModel_res_s, options_res_s)
     }
 
-//    fun runModelWithThingyAvailableData() {
-//        // Make sure you have enough data
-//        if (dataSet_thingy_accel_x.entryCount < 25
-//            || dataSet_thingy_accel_x.entryCount % 100 != 0
-//        ) {
-//            return
-//        }
-//
-//        val entries_thingy_accel_x = dataSet_thingy_accel_x.values
-//        val entries_thingy_accel_y = dataSet_thingy_accel_y.values
-//        val entries_thingy_accel_z = dataSet_thingy_accel_z.values
-//
-//        val entries_thingy_gyro_x = dataSet_thingy_gyro_x.values
-//        val entries_thingy_gyro_y = dataSet_thingy_gyro_y.values
-//        val entries_thingy_gyro_z = dataSet_thingy_gyro_z.values
-//
-//        // Create a ByteBuffer to hold the float values for input to the TFLite model
-//        val inputBuffer: ByteBuffer = ByteBuffer.allocateDirect(4 * 25 * 6)
-//
-//        // Populate the ByteBuffer, where y is the reading and x is the time
-//        val startIndex = dataSet_thingy_accel_x.entryCount - 25
-//        for (i in startIndex until startIndex + 25) {
-//            inputBuffer.putFloat(entries_thingy_accel_x[i].y)
-//            inputBuffer.putFloat(entries_thingy_accel_y[i].y)
-//            inputBuffer.putFloat(entries_thingy_accel_z[i].y)
-//
-//            inputBuffer.putFloat(entries_thingy_gyro_x[i].y)
-//            inputBuffer.putFloat(entries_thingy_gyro_y[i].y)
-//            inputBuffer.putFloat(entries_thingy_gyro_z[i].y)
-//        }
-//
-//        // Prepare the output buffer
-//        val outputBuffer: ByteBuffer = ByteBuffer.allocateDirect(48)
-////        outputBuffer.order(ByteOrder.nativeOrder())
-//
-//        // Run inference using TensorFlow Lite
-//        tflite_thingy.run(inputBuffer, outputBuffer)
-//
-//        // Rewind the buffer to the beginning so we can read from it
-//        outputBuffer.rewind()
-//
-//        // Convert ByteBuffer to FloatBuffer for easier handling
-//        val floatBuffer: FloatBuffer = outputBuffer.asFloatBuffer()
-//
-//        // Initialize variables to keep track of the maximum value and corresponding index
-//        var maxValue = floatBuffer.get(0)
-//        var outputIndex = 0
-//
-//        // Iterate through the output buffer to find the maximum value and index
-//        for (i in 1 until floatBuffer.limit()) {
-//            val currentValue = floatBuffer.get(i)
-//            if (currentValue > maxValue) {
-//                maxValue = currentValue
-//                outputIndex = i
-//            }
-//        }
-//
-//        Log.i("Model", outputIndex.toString())
-//
-//        val currentActivity = activities[outputIndex]
-//        // Update the TextView
-//        (findViewById<TextView>(R.id.currentAct)).text = "Current Activity: $currentActivity"
-//
-//    }
-
-
-
-
-    fun isStable(floatArray: FloatArray, threshold: Float = 0.1f): Boolean {
-        val value = (stdDev(floatArray).maxOrNull() ?: 0f)
-        Log.i("StableStd", "$value")
-        return value < threshold
-    }
-
-    fun classify(floatArray: FloatArray, similarityThreshold: Float = 0.2f): String? {
-        val (x, y, z) = separateXYZ(floatArray)
-
-        val avgX = x.average()
-        val avgY = y.average()
-        val avgZ = z.average()
-
-        Log.i("SimiDis", "x: $avgX, y: $avgY, z: $avgZ")
-
-        val condX = (avgX > avgY) && (avgX > avgZ) && (kotlin.math.abs(avgY - avgZ) < similarityThreshold)
-        val condXr = (avgX < avgY) && (avgX < avgZ) && (kotlin.math.abs(avgY - avgZ) < similarityThreshold)
-
-        val condY = (avgY > avgX) && (avgY > avgZ) && (kotlin.math.abs(avgX - avgZ) < similarityThreshold)
-        val condYr = (avgY < avgX) && (avgY < avgZ) && (kotlin.math.abs(avgX - avgZ) < similarityThreshold)
-
-        val condZ = (avgZ > avgX) && (avgZ > avgY) && (kotlin.math.abs(avgX - avgY) < similarityThreshold)
-        val condZr = (avgZ < avgX) && (avgZ < avgY) && (kotlin.math.abs(avgX - avgY) < similarityThreshold)
-
-        return when {
-            condX -> "lying on right"
-            condY -> null
-            condZ -> "lying on back"
-            condXr -> "lying on left"
-            condYr -> "sitting/standing"
-            condZr -> "lying on stomach"
-            else -> null
-        }
-    }
-
-//    fun bufferToFloatArray(buffer: ByteBuffer): FloatArray {
-//        val floats = FloatArray(buffer.remaining() / 4)
-//        buffer.asFloatBuffer().get(floats)
-//        return floats
-//    }
-
-    fun separateXYZ(arr: FloatArray): Triple<FloatArray, FloatArray, FloatArray> {
-        val x = FloatArray(arr.size / 6) // TODO
-        val y = FloatArray(arr.size / 6)
-        val z = FloatArray(arr.size / 6)
-
-        for (i in arr.indices step 6) {
-            x[i / 6] = arr[i]
-            y[i / 6] = arr[i + 1]
-            z[i / 6] = arr[i + 2]
+    @SuppressLint("SetTextI18n")
+    fun runModelWithThingyAvailableData(): String {
+        // Make sure you have enough data
+        if (dataSet_thingy_accel_x.entryCount < 50 // Thingy use 50
+        ) {
+            return "Waiting Thingy Sensor"
         }
 
-        return Triple(x, y, z)
+        val entries_thingy_accel_x = dataSet_thingy_accel_x.values
+        val entries_thingy_accel_y = dataSet_thingy_accel_y.values
+        val entries_thingy_accel_z = dataSet_thingy_accel_z.values
+
+        val entries_thingy_gyro_x = dataSet_thingy_gyro_x.values
+        val entries_thingy_gyro_y = dataSet_thingy_gyro_y.values
+        val entries_thingy_gyro_z = dataSet_thingy_gyro_z.values
+
+
+        // Populate the ByteBuffer, where y is the reading and x is the time
+        val startIndex = dataSet_thingy_accel_x.entryCount - 50
+        for (i in startIndex until startIndex + 50) {
+            this.inputBuffer.put(entries_thingy_accel_x[i].y)
+            this.inputBuffer.put(entries_thingy_accel_y[i].y)
+            this.inputBuffer.put(entries_thingy_accel_z[i].y)
+
+            // Normalize the y-values of the gyro data
+            val normalizedGyroX = (entries_thingy_gyro_x[i].y - minVal) / (maxVal - minVal)
+            val normalizedGyroY = (entries_thingy_gyro_y[i].y - minVal) / (maxVal - minVal)
+            val normalizedGyroZ = (entries_thingy_gyro_z[i].y - minVal) / (maxVal - minVal)
+
+            // Now put these normalized values into the inputBuffer
+            this.inputBuffer.put(normalizedGyroX)
+            this.inputBuffer.put(normalizedGyroY)
+            this.inputBuffer.put(normalizedGyroZ)
+        }
+
+        this.inputBuffer.rewind()
+
+        // Run inference using TensorFlow Lite
+        tflite_thingy.run(this.inputBuffer, outputBufferThingy)
+
+        // Rewind the buffer to the beginning so we can read from it
+        outputBufferThingy.rewind()
+        inputBuffer.rewind()
+
+        // Initialize variables to keep track of the maximum value and corresponding index
+        var outputIndex = 0
+        var maxValue = 0f
+
+        // Iterate through the output buffer to find the maximum value and index
+        for (i in 0 until outputBufferThingy.limit()) {
+            val currentValue = outputBufferThingy.get(i)
+            if (currentValue > maxValue) {
+                maxValue = currentValue
+                outputIndex = i
+            }
+        }
+
+        Log.i("ModelThingy", "Class Index: $outputIndex")
+
+        val currentActivity = activitiesThingy[outputIndex].toString()
+        // Update the TextView
+
+        return currentActivity
     }
-
-    fun stdDev(arr: FloatArray): FloatArray {
-        val meanX = arr.filterIndexed { index, _ -> index % 3 == 0 }.average()
-        val meanY = arr.filterIndexed { index, _ -> index % 3 == 1 }.average()
-        val meanZ = arr.filterIndexed { index, _ -> index % 3 == 2 }.average()
-
-        val stdDevX = sqrt(arr.filterIndexed { index, _ -> index % 3 == 0 }.map { (it - meanX) * (it - meanX) }.average())
-        val stdDevY = sqrt(arr.filterIndexed { index, _ -> index % 3 == 1 }.map { (it - meanY) * (it - meanY) }.average())
-        val stdDevZ = sqrt(arr.filterIndexed { index, _ -> index % 3 == 2 }.map { (it - meanZ) * (it - meanZ) }.average())
-
-        return floatArrayOf(stdDevX.toFloat(), stdDevY.toFloat(), stdDevZ.toFloat())
-    }
-
 
 
     @SuppressLint("SetTextI18n")
     fun runModelWithResAvailableData() {
         // Make sure you have enough data
-        if (dataSet_res_accel_x.entryCount < 100
-            || dataSet_res_accel_x.entryCount % 10 != 0 // TODO update database
-        ) {
+        if (dataSet_res_accel_x.entryCount < 50) {
             return
         }
 
@@ -384,18 +349,14 @@ class LiveDataActivity : AppCompatActivity() {
         val entries_res_gyro_y = dataSet_res_gyro_y.values
         val entries_res_gyro_z = dataSet_res_gyro_z.values
 
-        // Create a ByteBuffer to hold the float values for input to the TFLite model
-
-//        val inputBuffer: ByteBuffer = ByteBuffer.allocateDirect(4 * 100 * 6)
 
         // Populate the ByteBuffer, where y is the reading and x is the time
-        val startIndex = dataSet_res_accel_x.entryCount - 100
+        val startIndex = dataSet_res_accel_x.entryCount - 50
         Log.i("DataLength", "${dataSet_res_accel_x.entryCount}")
-//        inputBuffer.rewind()
-        for (i in startIndex until startIndex + 100) {
-            inputBuffer.put(entries_res_accel_x[i].y)
-            inputBuffer.put(entries_res_accel_y[i].y)
-            inputBuffer.put(entries_res_accel_z[i].y)
+        for (i in startIndex until startIndex + 50) {
+            this.inputBuffer.put(entries_res_accel_x[i].y)
+            this.inputBuffer.put(entries_res_accel_y[i].y)
+            this.inputBuffer.put(entries_res_accel_z[i].y)
 
             // Log the accelerometer values
             Log.d("AccelDataX", entries_res_accel_x[i].y.toString())
@@ -419,64 +380,87 @@ class LiveDataActivity : AppCompatActivity() {
         }
 
         inputBuffer.rewind()
-//        val floatArray = bufferToFloatArray(inputBuffer)
-//
 
 //        var currentActivity = classify(floatArray)
 //        // Rewind the buffer to the beginning so we can read from it
 //        if (! isStable(floatArray) || currentActivity == null) {
             // Allocate a ByteBuffer to hold the model's output
 
+        tflite_res_a.resetVariableTensors()
+        // Run inference using TensorFlow Lite
 
+        tflite_res_a.run(inputBuffer, outputBufferResA)
 
-            tflite_res.resetVariableTensors()
+        // Rewind the buffer to the beginning so we can read from it
+        outputBufferResA.rewind()
+        inputBuffer.rewind()
+
+        // Initialize variables to keep track of the maximum value and corresponding index
+        var outputIndex = 0
+        var maxValue = 0f
+
+        // Iterate through the output buffer to find the maximum value and index
+        for (i in 0 until outputBufferResA.limit()) {
+            val currentValue = outputBufferResA.get(i)
+            if (currentValue > maxValue) {
+                maxValue = currentValue
+                outputIndex = i
+            }
+            Log.i("ArgmaxCur", "Value: $currentValue")
+        }
+        Log.i("ArgmaxMax", "Value: $maxValue")
+//        if (maxValue < 0.9) {
+//            outputIndex = 4
+//        }
+
+        // Log the result
+        Log.i("ModelRes", "Class Index: $outputIndex")
+
+        var currentActivity = ""
+        var currentSymptom = ""
+
+        if (outputIndex == 4) { // Other
+            currentActivity = runModelWithThingyAvailableData()
+        } else {
+            currentActivity = activitiesRes[outputIndex].toString()
+
+            tflite_res_s.resetVariableTensors()
             // Run inference using TensorFlow Lite
 
-            tflite_res.run(inputBuffer, outputBuffer)
+            tflite_res_s.run(inputBuffer, outputBufferResS)
 
             // Rewind the buffer to the beginning so we can read from it
-            outputBuffer.rewind()
+            outputBufferResS.rewind()
             inputBuffer.rewind()
 
             // Initialize variables to keep track of the maximum value and corresponding index
-            var outputIndex = 0
-            var maxValue = 0f
+            outputIndex = 0
+            maxValue = 0f
 
-            for (i in 0 until outputBuffer.limit()) {
-                val currentValue = outputBuffer.get(i)
+            // Iterate through the output buffer to find the maximum value and index
+            for (i in 0 until outputBufferResS.limit()) {
+                val currentValue = outputBufferResS.get(i)
                 if (currentValue > maxValue) {
                     maxValue = currentValue
                     outputIndex = i
                 }
-                Log.i("ArgmaxCur", "Value: $currentValue")
             }
 
-            Log.i("ArgmaxMax", "Value: $maxValue")
-
-            // Log the result
-            Log.i("Model Result", "Class Index: $outputIndex")
-
-            val currentActivity = activities[outputIndex].toString()
-//        }
-
-
-//        // Update the queue with the new activity
-//        if (pastActivities.size >= 1) { // TODO add for smoothing
-//            pastActivities.remove()
-//        }
-//        pastActivities.add(currentActivity)
-//        val mostFrequentActivity = findMostFrequentActivity()
-
-//        val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
-//        val isRecording = sharedPreferences.getBoolean("recording", false)
-        runOnUiThread{
-            textLabel.text = "Current Activity: $currentActivity"
+            currentSymptom = symptomsRes[outputIndex].toString()
         }
-//        if (isRecording) {
+
+        // Update the queue with the new activity
+        if (pastActivities.size >= 10) { // TODO add for smoothing
+            pastActivities.remove()
+        }
+        pastActivities.add(currentActivity)
+        val mostFrequentActivity = findMostFrequentActivity()
+
+        runOnUiThread{
+            textLabel.text = "Current State: $mostFrequentActivity $currentSymptom"
+        }
+
         recordData(currentActivity)
-//        } else {
-//            // don't do anything
-//        }
     }
 
     // Function to find the most frequent activity
@@ -490,11 +474,12 @@ class LiveDataActivity : AppCompatActivity() {
     }
 
 
-    fun recordData(classifiedLabel: String) {
+    fun recordData(activity: String) {
         val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
+        val classifiedLabel = "ascending stairs normal"
         val username = sharedPreferences.getString("username", "").toString()
         val currentDate = System.currentTimeMillis()
-        val durationInSeconds = 1L
+        val durationInSeconds = 4L
 
         val existingActivityData = historyDB.getActivityData(username, currentDate, currentDate)
 

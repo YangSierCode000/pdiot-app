@@ -45,7 +45,7 @@ class LiveDataActivity : AppCompatActivity() {
 
     val outputBufferResA: FloatBuffer = FloatBuffer.allocate(6) // Adjust the size according to your model's output
     val outputBufferResS: FloatBuffer = FloatBuffer.allocate(4) // Adjust the size according to your model's output
-    val outputBufferThingy: FloatBuffer = FloatBuffer.allocate(6) // Adjust the size according to your model's output
+    val outputBufferThingy: FloatBuffer = FloatBuffer.allocate(12) // Adjust the size according to your model's output
 
 
     // global graph variables
@@ -98,10 +98,16 @@ class LiveDataActivity : AppCompatActivity() {
     val activitiesThingy = mapOf(
         0 to "ascending stairs",
         1 to "descending stairs",
-        2 to "miscellaneous movements",
-        3 to "normal walking",
-        4 to "running",
-        5 to "shuffle walking"
+        2 to "lying down on back",
+        3 to "lying down on left",
+        4 to "lying down on right",
+        5 to "lying down on stomach",
+        6 to "miscellaneous movements",
+        7 to "normal walking",
+        8 to "running",
+        9 to "shuffle walking",
+        10 to "sitting",
+        11 to "standing"
     )
 
     val symptomsRes = mapOf(
@@ -222,7 +228,7 @@ class LiveDataActivity : AppCompatActivity() {
         this.registerReceiver(thingyLiveUpdateReceiver, filterTestThingy, null, handlerThingy)
 
         // Load Thingy TFLite model
-        val modelPath_thingy = "tb50a2.tflite"
+        val modelPath_thingy = "tb50a2e.tflite"
         val assetFileDescriptor_thingy: AssetFileDescriptor = assets.openFd(modelPath_thingy)
         val fileInputStream_thingy = assetFileDescriptor_thingy.createInputStream()
         val fileChannel_thingy: FileChannel = fileInputStream_thingy.channel
@@ -273,7 +279,7 @@ class LiveDataActivity : AppCompatActivity() {
         // Make sure you have enough data
         if (dataSet_thingy_accel_x.entryCount < 50 // Thingy use 50
         ) {
-            return "Waiting Thingy Sensor"
+            return "N/A"
         }
 
         val entries_thingy_accel_x = dataSet_thingy_accel_x.values
@@ -338,6 +344,11 @@ class LiveDataActivity : AppCompatActivity() {
     fun runModelWithResAvailableData() {
         // Make sure you have enough data
         if (dataSet_res_accel_x.entryCount < 50) {
+            val currentActivity_by_thingy = runModelWithThingyAvailableData()
+            runOnUiThread{
+                textLabel.text = "Respeck: N/A, Thingy: $currentActivity_by_thingy"
+            }
+            recordData(currentActivity_by_thingy)
             return
         }
 
@@ -416,14 +427,16 @@ class LiveDataActivity : AppCompatActivity() {
         // Log the result
         Log.i("ModelRes", "Class Index: $outputIndex")
 
-        var currentActivity = ""
         var currentSymptom = ""
+        val currentActivity_by_res = activitiesRes[outputIndex].toString()
+        var currentActivity_by_thingy = runModelWithThingyAvailableData()
+        val resultActivity = currentActivity_by_thingy
 
-        if (outputIndex == 4) { // Other
-            currentActivity = runModelWithThingyAvailableData()
-        } else {
-            currentActivity = activitiesRes[outputIndex].toString()
+        if (currentActivity_by_thingy == "sitting" || currentActivity_by_thingy == "standing") {
+            currentActivity_by_thingy = "sitting/standing"
+        }
 
+        if (currentActivity_by_thingy == currentActivity_by_res) { // agree stationary
             tflite_res_s.resetVariableTensors()
             // Run inference using TensorFlow Lite
 
@@ -453,14 +466,14 @@ class LiveDataActivity : AppCompatActivity() {
         if (pastActivities.size >= 10) { // TODO add for smoothing
             pastActivities.remove()
         }
-        pastActivities.add(currentActivity)
+        pastActivities.add(resultActivity)
         val mostFrequentActivity = findMostFrequentActivity()
 
         runOnUiThread{
             textLabel.text = "Current State: $mostFrequentActivity $currentSymptom"
         }
 
-        recordData(currentActivity)
+        recordData("$mostFrequentActivity $currentSymptom")
     }
 
     // Function to find the most frequent activity
@@ -476,10 +489,10 @@ class LiveDataActivity : AppCompatActivity() {
 
     fun recordData(activity: String) {
         val sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, MODE_PRIVATE)
-        val classifiedLabel = "ascending stairs normal"
+        val classifiedLabel = activity
         val username = sharedPreferences.getString("username", "").toString()
         val currentDate = System.currentTimeMillis()
-        val durationInSeconds = 4L
+        val durationInSeconds = 1L
 
         val existingActivityData = historyDB.getActivityData(username, currentDate, currentDate)
 

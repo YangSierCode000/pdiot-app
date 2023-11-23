@@ -23,14 +23,25 @@ class HistoryActivity : AppCompatActivity() {
             val fromDate = getDateFromDatePicker(datePickerFrom)
             val toDate = getDateFromDatePicker(datePickerTo)
 
-            if (fromDate <= toDate) {
+            if (fromDate < toDate) {
                 Toast.makeText(this, "Proceeding...", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, ViewActivity::class.java)
                 intent.putExtra("FROM_DATE", fromDate)
                 intent.putExtra("TO_DATE", toDate)
+                intent.putExtra("SAME", false)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                 startActivity(intent)
-            } else {
+            } else if(fromDate == toDate){
+                Toast.makeText(this, "Proceeding...", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, ViewActivity::class.java)
+                val formattedFromDate = fromDate - 86400000
+                intent.putExtra("FROM_DATE",formattedFromDate)
+                intent.putExtra("TO_DATE", toDate)
+                intent.putExtra("SAME", true)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+                startActivity(intent)
+            }
+            else {
                 // Dates are invalid, show a toast
                 Toast.makeText(this, "Invalid date combination.", Toast.LENGTH_SHORT).show()
             }

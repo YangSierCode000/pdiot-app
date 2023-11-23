@@ -11,6 +11,8 @@ import com.specknet.pdiotapp.HistorySingleton
 import com.specknet.pdiotapp.R
 import com.specknet.pdiotapp.utils.Constants
 import android.widget.TableLayout
+import com.specknet.pdiotapp.LoginDB
+import com.specknet.pdiotapp.LoginSingleton
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -42,6 +44,8 @@ class ViewActivity : AppCompatActivity() {
 
         val activityDataList = historyDB.getActivityData(username, fromDate, toDate)
         displayActivityTable(activityDataList)
+
+
 
         val btnBack = findViewById<Button>(R.id.btnBack)
         btnBack.setOnClickListener {

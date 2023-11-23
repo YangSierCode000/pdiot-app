@@ -82,7 +82,8 @@
                 android:layout_height="60dp"
                 android:layout_marginTop="30dp"
                 android:background="@drawable/custom_edittext"
-                android:backgroundTint="@color/purple"
+
+                style="@style/ButtonStyle"
                 android:gravity="center"
                 android:text="Login"
                 android:textAlignment="center"

@@ -1,5 +1,6 @@
 package com.specknet.pdiotapp.user
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -23,16 +24,18 @@ class ViewActivity : AppCompatActivity() {
     private val historySingleton: HistorySingleton by lazy { HistorySingleton.getInstance(applicationContext) }
     private val historyDB: HistoryDB by lazy { historySingleton.historyDB }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view)
 
         val fromDate = intent.getLongExtra("FROM_DATE", 0L)
         val toDate = intent.getLongExtra("TO_DATE", 0L)
+        var same = intent.getBooleanExtra("SAME", false)
 
         val tvTitle: TextView = findViewById(R.id.tvTitle)
-        if (fromDate == toDate) {
-            tvTitle.text = "On ${formatDate(fromDate)}..."
+        if (same) {
+            tvTitle.text = "On ${formatDate(toDate)}..."
         } else {
             tvTitle.text = "From ${formatDate(fromDate)} to ${formatDate(toDate)}..."
         }
@@ -78,9 +81,16 @@ class ViewActivity : AppCompatActivity() {
             activityTextView.text = "$activity: "
 
             val durationTextView = TextView(this)
-            val durationText = duration.toString()
-            durationTextView.text = "$durationText seconds"
-            // should display "running: 20 seconds"
+            if (duration >= 30){
+                val durationFormatted = duration / 30
+                val durationText = durationFormatted.toString()
+                durationTextView.text = "$durationText seconds"
+            }else{
+                val durationText = duration.toString()
+                durationTextView.text = "$durationText seconds"
+            }
+
+
 
             row.addView(activityTextView)
             row.addView(durationTextView)

@@ -1,5 +1,6 @@
 package com.specknet.pdiotapp.bluetooth
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.PendingIntent
 import android.content.*
@@ -20,10 +21,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.specknet.pdiotapp.R
 import com.specknet.pdiotapp.barcode.BarcodeActivity
-import com.specknet.pdiotapp.databinding.ActivityConnectingBinding
 import com.specknet.pdiotapp.utils.Constants
 import com.specknet.pdiotapp.utils.Utils
 import java.util.*
+import kotlin.experimental.and
 
 class ConnectingActivity : AppCompatActivity() {
 
@@ -34,7 +35,6 @@ class ConnectingActivity : AppCompatActivity() {
     private lateinit var respeckID: EditText
     private lateinit var connectSensorsButton: Button
     private lateinit var restartConnectionButton: Button
-    private lateinit var binding: ActivityConnectingBinding
 //    private lateinit var disconnectRespeckButton: Button
 
     // Thingy
@@ -94,7 +94,7 @@ class ConnectingActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences(Constants.PREFERENCES_FILE, Context.MODE_PRIVATE)
         if (sharedPreferences.contains(Constants.RESPECK_MAC_ADDRESS_PREF)) {
             Log.i("sharedpref", "Already saw a respeckID")
-            binding.respeckCode.setText(
+            respeckID.setText(
                 sharedPreferences.getString(
                     Constants.RESPECK_MAC_ADDRESS_PREF,
                     ""
@@ -109,7 +109,7 @@ class ConnectingActivity : AppCompatActivity() {
         if (sharedPreferences.contains(Constants.THINGY_MAC_ADDRESS_PREF)) {
             Log.i("sharedpref", "Already saw a thingy ID")
 
-            binding.thingyCode.setText(
+            thingyID.setText(
                 sharedPreferences.getString(
                     Constants.THINGY_MAC_ADDRESS_PREF,
                     ""
@@ -189,7 +189,7 @@ class ConnectingActivity : AppCompatActivity() {
         Log.d(TAG, "setupForegroundDispatch: here ")
         val intent = Intent(activity.applicationContext, activity.javaClass)
         intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-        val pendingIntent = PendingIntent.getActivity(activity.applicationContext, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent = PendingIntent.getActivity(activity.applicationContext, 0, intent, 0)
 
         val filters = arrayOfNulls<IntentFilter>(2)
         val techList = arrayOf(
@@ -326,6 +326,7 @@ class ConnectingActivity : AppCompatActivity() {
         super.onPause()
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -337,7 +338,7 @@ class ConnectingActivity : AppCompatActivity() {
 
                 if (scanResult.contains(":")) {
                     // this is a respeck V6 and we should store its MAC address
-                    binding.respeckCode.setText(scanResult)
+                    respeckID.setText(scanResult)
                     sharedPreferences.edit().putString(
                         Constants.RESPECK_MAC_ADDRESS_PREF,
                         scanResult.toString()
@@ -354,7 +355,7 @@ class ConnectingActivity : AppCompatActivity() {
                     scanResult = sb.toString()
 
                     Log.i("Debug", "Scan result = " + scanResult)
-                    binding.respeckCode.setText(scanResult)
+                    respeckID.setText(scanResult)
                     sharedPreferences.edit().putString(
                         Constants.RESPECK_MAC_ADDRESS_PREF,
                         scanResult
@@ -366,7 +367,7 @@ class ConnectingActivity : AppCompatActivity() {
                 connectSensorsButton.isClickable = true
 
             } else {
-                binding.respeckCode.setText("No respeck found :(")
+                respeckID.setText("No respeck found :(")
             }
 
         }
